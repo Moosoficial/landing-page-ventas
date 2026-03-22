@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Precision Atelier — Herramientas de software profesional para diseño, ingeniería y producción musical. Licencias originales con entrega inmediata.">
+  <title>Precision Atelier | Software Profesional Premium</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Three.js for 3D interactive elements -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <!-- ========== Floating Particles Background ========== -->
+  <div class="particles-container" id="particles"></div>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav class="nav" id="mainNav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" id="logoHome">
+        <span class="logo-icon"><span class="material-icons">precision_manufacturing</span></span>
+        Precision Atelier
+      </a>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#" class="active" data-page="home" data-cat="creative" id="navHome">Creative</a>
+        <a href="#" data-page="home" data-cat="office" id="navOffice">Office</a>
+        <a href="#" data-page="home" data-cat="engineering" id="navEng">Engineering</a>
+        <a href="#" data-page="home" data-cat="audio" id="navAudio">Audio</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="#" class="nav-cart" data-page="checkout" id="navCartBtn">
+          <span class="material-icons">shopping_cart</span>
+          <span class="badge" id="cartBadge">2</span>
+        </a>
+        <button class="nav-toggle" id="navToggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 1: HOME — Top Sellers                                                -->
+  <!-- ========================================================================= -->
+  <main class="page active" id="page-home">
+
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="heroSection">
+      <div class="hero-bg"></div>
+      <div class="container">
+        <div class="hero-inner">
+          <div class="hero-content">
+            <span class="hero-overline label-md">
+              <span class="material-icons" style="font-size:1rem">auto_awesome</span>
+              Renderizado IA en tiempo real
+            </span>
+            <h1 class="display-lg hero-title">
+              Impulsa tu creatividad con el <span class="gradient-text">mejor software</span>
+            </h1>
+            <p class="body-lg hero-subtitle">
+              Herramientas de precisión para mentes innovadoras. Descubre la suite completa de soluciones profesionales para diseño, ingeniería y producción musical.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" id="heroCtaExplore">
+                <span class="material-icons">explore</span>
+                Explorar catálogo
+              </button>
+              <button class="btn btn-secondary btn-lg" id="heroCtaDemo">
+                <span class="material-icons">play_circle</span>
+                Ver demo
+              </button>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <div class="value">50K+</div>
+                <div class="label">Licencias activas</div>
+              </div>
+              <div class="hero-stat">
+                <div class="value">99.9%</div>
+                <div class="label">Uptime garantizado</div>
+              </div>
+              <div class="hero-stat">
+                <div class="value">24/7</div>
+                <div class="label">Soporte técnico</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🎯 3D INTERACTIVE: Hero geometric mesh -->
+          <div class="hero-3d">
+            <canvas id="hero-canvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TOP SELLERS ===== -->
+    <section class="section" id="topSellers">
+      <div class="container">
+        <!-- Categories -->
+        <div class="categories" id="categoryTabs">
+          <button class="category-tab active" data-cat="all">Todos</button>
+          <button class="category-tab" data-cat="creative">Creative</button>
+          <button class="category-tab" data-cat="office">Office</button>
+          <button class="category-tab" data-cat="engineering">Engineering</button>
+          <button class="category-tab" data-cat="audio">Audio</button>
+        </div>
+
+        <div class="products-header">
+          <h2 class="display-md">Más Vendidos</h2>
+          <a href="#" class="btn btn-ghost">
+            Ver todo el catálogo
+            <span class="material-icons">arrow_forward</span>
+          </a>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="products-grid" id="productsGrid">
+          <!-- Card 1: Photoshop -->
+          <article class="product-card" data-category="creative" data-product="photoshop" id="card-photoshop">
+            <div class="product-image">
+              <img src="assets/images/photoshop.png" alt="Adobe Photoshop" loading="lazy">
+              <span class="product-badge bestseller">Más vendido</span>
+            </div>
+            <div class="product-info">
+              <p class="label-sm product-category">Creative Suite</p>
+              <h3 class="product-name">Adobe Photoshop</h3>
+              <p class="product-desc">El estándar mundial en edición de imágenes y diseño gráfico. Crea todo lo que puedas imaginar.</p>
+              <div class="product-footer">
+                <span class="product-price">€22.99 <span class="period">/mes</span></span>
+                <button class="product-add-btn" aria-label="Agregar al carrito">
+                  <span class="material-icons">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 2: Office 365 -->
+          <article class="product-card" data-category="office" data-product="office" id="card-office">
+            <div class="product-image">
+              <img src="assets/images/office365.png" alt="Office 365" loading="lazy">
+            </div>
+            <div class="product-info">
+              <p class="label-sm product-category">Productividad</p>
+              <h3 class="product-name">Office 365</h3>
+              <p class="product-desc">Productividad sin límites con Word, Excel y PowerPoint. Colaboración en la nube integrada.</p>
+              <div class="product-footer">
+                <span class="product-price">€9.99 <span class="period">/mes</span></span>
+                <button class="product-add-btn" aria-label="Agregar al carrito">
+                  <span class="material-icons">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 3: AutoCAD -->
+          <article class="product-card" data-category="engineering" data-product="autocad" id="card-autocad">
+            <div class="product-image">
+              <img src="assets/images/autocad.png" alt="AutoCAD 2024" loading="lazy">
+              <span class="product-badge new">Nuevo</span>
+            </div>
+            <div class="product-info">
+              <p class="label-sm product-category">Engineering</p>
+              <h3 class="product-name">AutoCAD 2024</h3>
+              <p class="product-desc">Diseño 2D y 3D de alta precisión para ingeniería y arquitectura profesional.</p>
+              <div class="product-footer">
+                <span class="product-price">€235 <span class="period">/año</span></span>
+                <button class="product-add-btn" aria-label="Agregar al carrito">
+                  <span class="material-icons">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 4: Ableton -->
+          <article class="product-card" data-category="audio" data-product="ableton" id="card-ableton">
+            <div class="product-image">
+              <img src="assets/images/ableton.png" alt="Ableton Live 12" loading="lazy">
+            </div>
+            <div class="product-info">
+              <p class="label-sm product-category">Audio Production</p>
+              <h3 class="product-name">Ableton Live 12</h3>
+              <p class="product-desc">Software fluido para creación y performance musical en vivo y en estudio.</p>
+              <div class="product-footer">
+                <span class="product-price">€449 <span class="period">único</span></span>
+                <button class="product-add-btn" aria-label="Agregar al carrito">
+                  <span class="material-icons">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </article>
+
+          <!-- Card 5: Illustrator -->
+          <article class="product-card" data-category="creative" data-product="illustrator" id="card-illustrator">
+            <div class="product-image">
+              <img src="assets/images/illustrator.png" alt="Adobe Illustrator" loading="lazy">
+            </div>
+            <div class="product-info">
+              <p class="label-sm product-category">Creative Suite</p>
+              <h3 class="product-name">Adobe Illustrator</h3>
+              <p class="product-desc">Gráficos vectoriales que mantienen su nitidez a cualquier escala. Perfecto para branding.</p>
+              <div class="product-footer">
+                <span class="product-price">€22.99 <span class="period">/mes</span></span>
+                <button class="product-add-btn" aria-label="Agregar al carrito">
+                  <span class="material-icons">add_shopping_cart</span>
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TRUST ===== -->
+    <section class="section trust-section" id="trustSection">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-overline label-md">
+            <span class="material-icons" style="font-size:1rem">verified_user</span>
+            Confianza en cada licencia
+          </span>
+          <h2 class="display-md section-title">Garantía de autenticidad</h2>
+          <p class="body-lg section-subtitle">Todas nuestras licencias son 100% originales con activación inmediata y soporte técnico dedicado.</p>
+        </div>
+
+        <div class="trust-grid">
+          <div class="trust-item">
+            <div class="trust-icon t1"><span class="material-icons">verified</span></div>
+            <h3 class="trust-title">100% Original</h3>
+            <p class="trust-desc">Licencias directas del fabricante con garantía de autenticidad verificada.</p>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon t2"><span class="material-icons">bolt</span></div>
+            <h3 class="trust-title">Entrega Inmediata</h3>
+            <p class="trust-desc">Recibe tu clave de licencia al instante tras confirmar el pago.</p>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon t3"><span class="material-icons">support_agent</span></div>
+            <h3 class="trust-title">Soporte 24/7</h3>
+            <p class="trust-desc">Equipo técnico especializado disponible en todo momento.</p>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon t4"><span class="material-icons">lock</span></div>
+            <h3 class="trust-title">Pago Seguro</h3>
+            <p class="trust-desc">Encriptación AES-256 para todas las transacciones. Certificación PCI-DSS.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section faq-section" id="faqSection">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-overline label-md">
+            <span class="material-icons" style="font-size:1rem">help_outline</span>
+            Preguntas Frecuentes
+          </span>
+          <h2 class="display-md section-title">¿Tienes dudas?</h2>
+          <p class="body-lg section-subtitle">Aquí encontrarás respuestas a las preguntas más comunes sobre nuestras licencias.</p>
+        </div>
+
+        <div class="faq-grid">
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Las licencias son originales y legales?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Sí, todas nuestras licencias son 100% originales y provienen directamente de los fabricantes autorizados. Funcionan exactamente igual que las licencias compradas directamente en las tiendas oficiales, incluyendo todas las actualizaciones y soporte técnico.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Cómo recibo mi licencia después de la compra?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Inmediatamente después de confirmar tu pago, recibirás un correo electrónico con tu clave de licencia e instrucciones detalladas de activación. El proceso suele tomar menos de 5 minutos. También puedes encontrar tus licencias en la sección "Mis Pedidos" de tu cuenta.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Puedo usar la licencia en múltiples dispositivos?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Depende del producto. Las licencias de Adobe y Microsoft Office permiten la instalación en 2 dispositivos simultáneos. Las licencias vitalicias como Ableton son para uso en un solo dispositivo pero puedes transferirlas si cambias de computadora. Cada producto indica claramente sus condiciones de uso.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Qué métodos de pago aceptan?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Aceptamos tarjetas de crédito y débito (Visa, Mastercard, American Express), PayPal, y criptomonedas (Bitcoin, Ethereum, USDC). Todos los pagos están protegidos con encriptación SSL de 256 bits.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Cuál es su política de reembolso?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Ofrecemos garantía de devolución de dinero de 30 días si la licencia no funciona correctamente o si hay algún problema técnico que no podamos resolver. Una vez activada la licencia y funcionando correctamente, no aplican reembolsos por cambio de opinión debido a la naturaleza intangible del producto.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" aria-expanded="false">
+              <span class="faq-text">¿Recibiré actualizaciones del software?</span>
+              <span class="faq-icon material-icons">expand_more</span>
+            </button>
+            <div class="faq-answer">
+              <p>Las suscripciones mensuales/anuales incluyen siempre las últimas actualizaciones automáticamente. Para licencias vitalicias, recibirás actualizaciones dentro de la versión principal comprada (ej: AutoCAD 2024). Para actualizar a versiones principales nuevas, ofrecemos descuentos especiales para clientes existentes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 2: PRODUCT DETAIL — Adobe Creative Cloud                             -->
+  <!-- ========================================================================= -->
+  <main class="page" id="page-product">
+    <div style="height: 72px"></div> <!-- nav spacer -->
+
+    <section class="section product-detail">
+      <div class="container">
+        <div class="product-detail-grid">
+          <!-- 🎯 3D INTERACTIVE: Rotating product box -->
+          <div class="product-detail-visual" id="product3dContainer">
+            <canvas id="product-canvas" class="product-3d-viewer"></canvas>
+          </div>
+
+          <div class="product-detail-info">
+            <span class="label-md" id="pd-category" style="color: var(--secondary); margin-bottom: var(--space-3); display: block;">
+              Creative Suite — Suscripción
+            </span>
+            <h1 class="display-md product-detail-title" id="pd-title">Adobe Creative Cloud</h1>
+
+            <div class="product-specs" id="pd-specs">
+              <span class="spec-chip">
+                <span class="material-icons">cloud_done</span>
+                100GB Almacenamiento Cloud
+              </span>
+              <span class="spec-chip">
+                <span class="material-icons">sync</span>
+                Sincronización Multi-dispositivo
+              </span>
+              <span class="spec-chip">
+                <span class="material-icons">auto_awesome</span>
+                Adobe Firefly AI integrado
+              </span>
+            </div>
+
+            <p class="body-lg" id="pd-desc" style="margin-bottom: var(--space-8);">
+              Acceso completo a más de 20 aplicaciones creativas profesionales incluyendo Photoshop, Illustrator, Premiere Pro y After Effects.
+            </p>
+
+            <div style="display: flex; align-items: center; gap: var(--space-6); margin-bottom: var(--space-8);">
+              <div>
+                <span class="display-md" id="pd-price" style="color: var(--primary);">€62.99</span>
+                <span class="body-md" id="pd-period" style="color: var(--on-surface-variant);"> /mes</span>
+              </div>
+              <button class="btn btn-primary btn-lg" id="addToCartBtn">
+                <span class="material-icons">add_shopping_cart</span>
+                Añadir al carrito
+              </button>
+            </div>
+
+            <!-- Features -->
+            <div class="features-grid" id="pd-features">
+              <div class="feature-card">
+                <div class="feature-icon primary">
+                  <span class="material-icons">apps</span>
+                </div>
+                <h3 class="feature-title">Suite Creativa Completa</h3>
+                <p class="feature-desc">Acceso ilimitado a más de 20 aplicaciones, incluidas Photoshop, Illustrator, Premiere Pro y After Effects.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon secondary">
+                  <span class="material-icons">auto_fix_high</span>
+                </div>
+                <h3 class="feature-title">IA Generativa Avanzada</h3>
+                <p class="feature-desc">Herramientas de IA de última generación para expandir imágenes, eliminar objetos y generar vectores.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon tertiary">
+                  <span class="material-icons">group_work</span>
+                </div>
+                <h3 class="feature-title">Colaboración en Tiempo Real</h3>
+                <p class="feature-desc">Comparte activos y bibliotecas con tu equipo al instante a través de Adobe Libraries.</p>
+              </div>
+              <div class="feature-card">
+                <div class="feature-icon primary">
+                  <span class="material-icons">font_download</span>
+                </div>
+                <h3 class="feature-title">Fuentes y Recursos</h3>
+                <p class="feature-desc">Acceso total a Adobe Fonts y una vasta biblioteca de plantillas premium.</p>
+              </div>
+            </div>
+
+            <!-- System Requirements -->
+            <div class="sys-req">
+              <h3 class="headline-md">Requisitos del Sistema</h3>
+              <div class="sys-req-grid">
+                <div class="sys-req-item">
+                  <p class="req-label">Procesador</p>
+                  <p class="req-value">Multinúcleo Intel o AMD (64 bits, 2 GHz+)</p>
+                </div>
+                <div class="sys-req-item">
+                  <p class="req-label">Memoria RAM</p>
+                  <p class="req-value">16 GB mínimo (32 GB recomendado)</p>
+                </div>
+                <div class="sys-req-item">
+                  <p class="req-label">GPU</p>
+                  <p class="req-value">DirectX 12 (4 GB VRAM dedicada)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 3: CHECKOUT                                                          -->
+  <!-- ========================================================================= -->
+  <main class="page" id="page-checkout">
+    <div style="height: 72px"></div> <!-- nav spacer -->
+
+    <section class="section checkout">
+      <div class="container">
+        <div class="section-header" style="text-align:left; margin-bottom: var(--space-8);">
+          <span class="section-overline label-md">
+            <span class="material-icons" style="font-size:1rem">lock</span>
+            Checkout seguro
+          </span>
+          <h1 class="display-md">Finalizar Compra</h1>
+        </div>
+
+        <div class="checkout-grid">
+          <!-- Form -->
+          <form class="checkout-form" id="checkoutFormElement" novalidate>
+            <div class="form-section">
+              <h2 class="headline-md" style="margin-bottom: var(--space-6);">Información Personal</h2>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="firstName">Nombre *</label>
+                  <input class="form-input" type="text" id="firstName" name="firstName" placeholder="Tu nombre" required>
+                  <span class="form-error" id="error-firstName">Por favor ingresa tu nombre</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="lastName">Apellido *</label>
+                  <input class="form-input" type="text" id="lastName" name="lastName" placeholder="Tu apellido" required>
+                  <span class="form-error" id="error-lastName">Por favor ingresa tu apellido</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group full">
+                  <label class="form-label" for="email">Correo Electrónico *</label>
+                  <input class="form-input" type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                  <span class="form-error" id="error-email">Por favor ingresa un email válido</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h2 class="headline-md" style="margin-bottom: var(--space-6);">Método de Pago</h2>
+              <div class="payment-methods" id="paymentMethods">
+                <div class="payment-method active" data-method="card" id="pmCard">
+                  <span class="material-icons method-icon">credit_card</span>
+                  <span class="method-name">Tarjeta</span>
+                  <span class="method-desc">Débito o Crédito</span>
+                </div>
+                <div class="payment-method" data-method="paypal" id="pmPaypal">
+                  <span class="material-icons method-icon">account_balance_wallet</span>
+                  <span class="method-name">PayPal</span>
+                  <span class="method-desc">Checkout rápido</span>
+                </div>
+                <div class="payment-method" data-method="crypto" id="pmCrypto">
+                  <span class="material-icons method-icon">currency_bitcoin</span>
+                  <span class="method-name">Crypto</span>
+                  <span class="method-desc">BTC, ETH, USDC</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group full">
+                  <label class="form-label" for="cardNumber">Número de Tarjeta *</label>
+                  <input class="form-input" type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                  <span class="form-error" id="error-cardNumber">Número de tarjeta inválido</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="expiry">Fecha de Expiración *</label>
+                  <input class="form-input" type="text" id="expiry" name="expiry" placeholder="MM/AA" maxlength="5" required>
+                  <span class="form-error" id="error-expiry">Fecha inválida</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="cvv">CVV *</label>
+                  <input class="form-input" type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" required>
+                  <span class="form-error" id="error-cvv">CVV inválido</span>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg" id="confirmPayBtn" style="width: 100%; justify-content: center; margin-top: var(--space-4);">
+                <span class="material-icons">lock</span>
+                Confirmar Pago — €0.00
+              </button>
+
+              <div class="security-note">
+                <span class="material-icons">shield</span>
+                <p>Al confirmar el pago, aceptas nuestros Términos de Servicio. Tus datos están protegidos por encriptación AES-256 de grado bancario.</p>
+              </div>
+            </div>
+          </form>
+
+          <!-- Cart Summary Sidebar -->
+          <div class="cart-panel" id="cartSummaryPanel">
+            <h3 class="headline-md" style="margin-bottom: var(--space-6);">Resumen de Compra</h3>
+
+            <div id="cartItemsContainer">
+              <!-- Cart items will be rendered here by JS -->
+            </div>
+
+            <div class="cart-divider"></div>
+
+            <div class="cart-summary-row">
+              <span class="cart-summary-label">Subtotal</span>
+              <span class="cart-summary-value" id="cartSubtotal">€0.00</span>
+            </div>
+            <div class="cart-summary-row">
+              <span class="cart-summary-label">IVA (21%)</span>
+              <span class="cart-summary-value" id="cartTax">€0.00</span>
+            </div>
+
+            <div class="cart-total" style="margin-top: var(--space-4);">
+              <span class="cart-total-label">Total a pagar</span>
+              <span class="cart-total-value" id="cartTotal">€0.00</span>
+            </div>
+
+            <div class="security-note">
+              <span class="material-icons">verified_user</span>
+              <p>Aceptamos las principales redes de pago con certificación PCI-DSS Nivel 1.</p>
+            </div>
+
+            <div style="margin-top: var(--space-6); text-align:center;">
+              <p style="font-size: 0.8125rem; color: var(--on-surface-variant);">
+                ¿Necesitas ayuda con tu pedido?
+              </p>
+              <a href="#" class="btn btn-ghost" style="margin-top: var(--space-2);">
+                <span class="material-icons">headset_mic</span>
+                Habla con un experto
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 4: SUCCESS                                                           -->
+  <!-- ========================================================================= -->
+  <main class="page" id="page-success">
+    <div style="height: 72px"></div> <!-- nav spacer -->
+
+    <section class="section success-page">
+      <div class="container">
+        <div class="success-content">
+          <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+          <div class="success-icon">
+            <span class="material-icons">check_circle</span>
+          </div>
+
+          <h1 class="display-md success-title">¡Pedido Confirmado!</h1>
+          <p class="body-lg success-message">
+            Gracias por tu compra. Hemos enviado un correo de confirmación a <strong id="orderEmail">tu@email.com</strong> con los detalles de tu orden.
+          </p>
+
+          <div class="order-card">
+            <div class="order-row">
+              <span class="order-label">Número de Orden</span>
+              <span class="order-value" id="orderNumber">PA-XXXXXXXX</span>
+            </div>
+            <div class="order-row">
+              <span class="order-label">Total Pagado</span>
+              <span class="order-value order-total" id="orderTotal">€0.00</span>
+            </div>
+            <div class="order-row">
+              <span class="order-label">Estado</span>
+              <span class="order-status">
+                <span class="status-dot"></span>
+                Procesando
+              </span>
+            </div>
+          </div>
+
+          <div class="success-actions">
+            <button class="btn btn-primary btn-lg" onclick="window.showPage('home')">
+              <span class="material-icons">store</span>
+              Seguir Comprando
+            </button>
+            <button class="btn btn-secondary btn-lg" onclick="alert('Función disponible próximamente')">
+              <span class="material-icons">receipt</span>
+              Ver Factura
+            </button>
+          </div>
+
+          <div class="success-info">
+            <p class="body-md">
+              <span class="material-icons" style="font-size: 1rem; vertical-align: middle; margin-right: 4px;">info</span>
+              Recibirás otro correo cuando tu licencia esté lista para descargar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer" id="siteFooter">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="nav-logo" style="color: var(--inverse-on-surface);">
+            <span class="logo-icon"><span class="material-icons">precision_manufacturing</span></span>
+            Precision Atelier
+          </div>
+          <p>Herramientas de precisión para mentes innovadoras. Excelencia técnica definida.</p>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Productos</h4>
+          <ul class="footer-links">
+            <li><a href="#">Creative Suite</a></li>
+            <li><a href="#">Office & Productividad</a></li>
+            <li><a href="#">Engineering & CAD</a></li>
+            <li><a href="#">Audio Production</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Soporte</h4>
+          <ul class="footer-links">
+            <li><a href="#">Centro de Ayuda</a></li>
+            <li><a href="#">Contacto</a></li>
+            <li><a href="#">Estado del Sistema</a></li>
+            <li><a href="#">FAQ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="footer-col-title">Legal</h4>
+          <ul class="footer-links">
+            <li><a href="#">Términos de Servicio</a></li>
+            <li><a href="#">Política de Privacidad</a></li>
+            <li><a href="#">Acuerdo de Licencia</a></li>
+            <li><a href="#">Política de Reembolso</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2024 Precision Atelier. Technical excellence defined.</p>
+        <div class="footer-bottom-links">
+          <a href="#">Terms of Service</a>
+          <a href="#">Privacy Policy</a>
+          <a href="#">License Agreement</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== JavaScript ========== -->
+  <script src="app.js"></script>
+  <script type="module" src="scene3d.js"></script>
+
+</body>
+</html>

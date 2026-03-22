@@ -1,0 +1,8 @@
+.claude/
+.agents/
+.kiro/
+.qwen/
+.windsurf/
+node_modules/
+.DS_Store
+Thumbs.db
