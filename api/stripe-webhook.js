@@ -1,4 +1,10 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const { createClient } = require('@supabase/supabase-js');
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_KEY
+);
 
 export const config = {
   api: { bodyParser: false },
@@ -33,13 +39,50 @@ export default async function handler(req, res) {
   if (stripeEvent.type === 'checkout.session.completed') {
     const session = stripeEvent.data.object;
 
-    console.log('✅ Pago confirmado:', {
-      sessionId: session.id,
-      email: session.customer_details?.email,
-      total: session.amount_total / 100,
-    });
+    try {
+      const orderNumber = 'PA-' + session.id.slice(-8).toUpperCase();
+      const cartItems = JSON.parse(session.metadata?.cart_summary || '[]');
 
-    // Aqui se integrara: Supabase + envio de licencia por email (Paso 2)
+      // Guardar orden principal
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          order_number: orderNumber,
+          stripe_session_id: session.id,
+          customer_email: session.customer_details?.email || '',
+          customer_name: session.customer_details?.name || session.metadata?.customer_name || '',
+          total_amount: session.amount_total / 100,
+          payment_status: 'paid',
+        })
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Guardar items del pedido
+      if (cartItems.length > 0) {
+        const items = cartItems.map(item => ({
+          order_id: order.id,
+          product_id: item.id,
+          product_name: item.name,
+          license_type: item.license || 'Licencia digital',
+          quantity: item.qty || 1,
+          unit_price: session.amount_total / 100 / cartItems.reduce((s, i) => s + (i.qty || 1), 0),
+        }));
+
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(items);
+
+        if (itemsError) throw itemsError;
+      }
+
+      console.log('✅ Pedido guardado en Supabase:', orderNumber);
+
+    } catch (err) {
+      console.error('❌ Error guardando pedido:', err.message);
+      // Retornamos 200 igual para que Stripe no reintente
+    }
   }
 
   return res.status(200).json({ received: true });
