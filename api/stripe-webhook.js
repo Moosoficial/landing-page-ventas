@@ -6,10 +6,6 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-module.exports.config = {
-  api: { bodyParser: false },
-};
-
 async function getRawBody(req) {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -19,7 +15,7 @@ async function getRawBody(req) {
   });
 }
 
-module.exports = async function handler(req, res) {
+async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -83,4 +79,7 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({ received: true });
-};
+}
+
+handler.config = { api: { bodyParser: false } };
+module.exports = handler;
