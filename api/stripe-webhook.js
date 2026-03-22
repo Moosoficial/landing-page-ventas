@@ -14,11 +14,13 @@ async function handler(req, res) {
   let stripeEvent;
 
   try {
-    // En Vercel serverless functions el body ya viene parseado
     stripeEvent = req.body;
+    console.log('📦 Body type:', typeof stripeEvent);
+    console.log('📦 Event type:', stripeEvent?.type);
+    console.log('📦 Body keys:', Object.keys(stripeEvent || {}));
 
-    // Verificar que es un evento valido de Stripe
     if (!stripeEvent || !stripeEvent.type) {
+      console.error('❌ Evento invalido - body:', JSON.stringify(stripeEvent));
       return res.status(400).json({ error: 'Evento invalido' });
     }
   } catch (err) {
