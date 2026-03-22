@@ -95,7 +95,6 @@
     initMobileNav();
     initPageNavigation();
     initCategoryFilter();
-    initPaymentMethods();
     initCartInteractions();
     initProductCards();
     initParticles();
@@ -103,6 +102,7 @@
     initCartUI();
     initFAQ();
     initSkeletonLoading();
+    checkUrlParams();
   }
 
   // ===================== CART FUNCTIONS =====================
@@ -425,7 +425,6 @@
 
   // ===================== CART INTERACTIONS =====================
   function initCartInteractions() {
-    // Confirm pay button - actual checkout process
     const payBtn = document.getElementById('confirmPayBtn');
     const checkoutForm = document.getElementById('checkoutFormElement');
 
@@ -438,12 +437,10 @@
           return;
         }
 
-        // Validate form
         const formData = new FormData(checkoutForm);
         const firstName = formData.get('firstName')?.trim();
         const lastName = formData.get('lastName')?.trim();
         const email = formData.get('email')?.trim();
-        const cardNumber = formData.get('cardNumber')?.replace(/\s/g, '');
 
         if (!firstName || !lastName) {
           Toast.show('Por favor ingresa tu nombre completo', 'error');
@@ -455,40 +452,79 @@
           return;
         }
 
-        if (!cardNumber || cardNumber.length < 16) {
-          Toast.show('Por favor ingresa un número de tarjeta válido', 'error');
-          return;
-        }
-
-        // Simulate payment processing
-        payBtn.innerHTML = '<span class="material-icons" style="animation: spin 1s linear infinite">autorenew</span> Procesando...';
+        // Show loading state
+        payBtn.innerHTML = '<span class="material-icons" style="animation: spin 1s linear infinite">autorenew</span> Redirigiendo a Stripe...';
         payBtn.style.pointerEvents = 'none';
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        try {
+          const response = await fetch('/.netlify/functions/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cart,
+              customerEmail: email,
+              customerName: `${firstName} ${lastName}`,
+            }),
+          });
 
-        // Generate order number
-        const orderNumber = 'PA-' + Date.now().toString(36).toUpperCase();
-        const total = getCartTotal() * 1.21;
+          const data = await response.json();
 
-        // Save order to localStorage (for demo)
-        const order = {
-          number: orderNumber,
-          items: [...cart],
-          total: total,
-          customer: { firstName, lastName, email },
-          date: new Date().toISOString()
-        };
-        localStorage.setItem('precision_atelier_last_order', JSON.stringify(order));
-
-        // Clear cart
-        cart = [];
-        saveCart();
-
-        // Show success page
-        window.showPage('success');
-        initSuccessPage(order);
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            throw new Error(data.error || 'No se pudo iniciar el pago');
+          }
+        } catch (error) {
+          Toast.show('Error al conectar con el servidor de pagos. Intenta de nuevo.', 'error');
+          payBtn.innerHTML = '<span class="material-icons">lock</span> Continuar al pago seguro — €' + (getCartTotal() * 1.21).toFixed(2);
+          payBtn.style.pointerEvents = '';
+        }
       });
+    }
+  }
+
+  // ===================== URL PARAMS (Stripe redirect back) =====================
+  function checkUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get('success') === 'true') {
+      const sessionId = params.get('session_id');
+      handleStripeSuccess(sessionId);
+      // Clean URL
+      window.history.replaceState({}, '', '/');
+    } else if (params.get('canceled') === 'true') {
+      window.history.replaceState({}, '', '/');
+      setTimeout(() => {
+        window.showPage('checkout');
+        Toast.show('Pago cancelado. Puedes intentarlo de nuevo.', 'info');
+      }, 300);
+    }
+  }
+
+  async function handleStripeSuccess(sessionId) {
+    // Clear cart immediately
+    cart = [];
+    saveCart();
+
+    // Navigate to success page
+    window.showPage('success');
+
+    if (!sessionId) {
+      initSuccessPage({ number: 'PA-' + Date.now().toString(36).toUpperCase(), total: 0, customer: { email: '' } });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/.netlify/functions/get-session?session_id=${sessionId}`);
+      const data = await response.json();
+
+      initSuccessPage({
+        number: data.orderNumber,
+        total: data.amountTotal,
+        customer: { email: data.customerEmail },
+      });
+    } catch {
+      initSuccessPage({ number: 'PA-' + Date.now().toString(36).toUpperCase(), total: 0, customer: { email: '' } });
     }
   }
 

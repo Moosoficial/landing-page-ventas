@@ -487,52 +487,23 @@
 
             <div class="form-section">
               <h2 class="headline-md" style="margin-bottom: var(--space-6);">Método de Pago</h2>
-              <div class="payment-methods" id="paymentMethods">
-                <div class="payment-method active" data-method="card" id="pmCard">
-                  <span class="material-icons method-icon">credit_card</span>
-                  <span class="method-name">Tarjeta</span>
-                  <span class="method-desc">Débito o Crédito</span>
-                </div>
-                <div class="payment-method" data-method="paypal" id="pmPaypal">
-                  <span class="material-icons method-icon">account_balance_wallet</span>
-                  <span class="method-name">PayPal</span>
-                  <span class="method-desc">Checkout rápido</span>
-                </div>
-                <div class="payment-method" data-method="crypto" id="pmCrypto">
-                  <span class="material-icons method-icon">currency_bitcoin</span>
-                  <span class="method-name">Crypto</span>
-                  <span class="method-desc">BTC, ETH, USDC</span>
-                </div>
-              </div>
 
-              <div class="form-row">
-                <div class="form-group full">
-                  <label class="form-label" for="cardNumber">Número de Tarjeta *</label>
-                  <input class="form-input" type="text" id="cardNumber" name="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" required>
-                  <span class="form-error" id="error-cardNumber">Número de tarjeta inválido</span>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="expiry">Fecha de Expiración *</label>
-                  <input class="form-input" type="text" id="expiry" name="expiry" placeholder="MM/AA" maxlength="5" required>
-                  <span class="form-error" id="error-expiry">Fecha inválida</span>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="cvv">CVV *</label>
-                  <input class="form-input" type="text" id="cvv" name="cvv" placeholder="123" maxlength="4" required>
-                  <span class="form-error" id="error-cvv">CVV inválido</span>
+              <div class="stripe-info-box" style="display:flex; align-items:center; gap:var(--space-3); background:var(--surface-container); border-radius:12px; padding:var(--space-4); margin-bottom:var(--space-6);">
+                <span class="material-icons" style="color:var(--secondary); font-size:2rem;">lock</span>
+                <div>
+                  <p style="font-weight:600; color:var(--on-surface); margin-bottom:4px;">Pago seguro con Stripe</p>
+                  <p style="font-size:0.875rem; color:var(--on-surface-variant);">Acepta tarjetas Visa, Mastercard, Amex y más. Tus datos van directo a Stripe — nunca los almacenamos.</p>
                 </div>
               </div>
 
               <button type="submit" class="btn btn-primary btn-lg" id="confirmPayBtn" style="width: 100%; justify-content: center; margin-top: var(--space-4);">
                 <span class="material-icons">lock</span>
-                Confirmar Pago — €0.00
+                Continuar al pago seguro — €0.00
               </button>
 
-              <div class="security-note">
+              <div class="security-note" style="margin-top:var(--space-4);">
                 <span class="material-icons">shield</span>
-                <p>Al confirmar el pago, aceptas nuestros Términos de Servicio. Tus datos están protegidos por encriptación AES-256 de grado bancario.</p>
+                <p>Al continuar aceptas nuestros Términos de Servicio. Serás redirigido a la pasarela segura de Stripe (PCI-DSS Nivel 1).</p>
               </div>
             </div>
           </form>
