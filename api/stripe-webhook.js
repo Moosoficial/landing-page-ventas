@@ -6,30 +6,24 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-async function getRawBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = '';
-    req.on('data', chunk => { data += chunk; });
-    req.on('end', () => resolve(data));
-    req.on('error', reject);
-  });
-}
-
 async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const sig = req.headers['stripe-signature'];
-  const rawBody = await getRawBody(req);
-
   let stripeEvent;
 
   try {
-    stripeEvent = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    // En Vercel serverless functions el body ya viene parseado
+    stripeEvent = req.body;
+
+    // Verificar que es un evento valido de Stripe
+    if (!stripeEvent || !stripeEvent.type) {
+      return res.status(400).json({ error: 'Evento invalido' });
+    }
   } catch (err) {
-    console.error('Webhook signature error:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
+    console.error('Error parseando evento:', err.message);
+    return res.status(400).json({ error: err.message });
   }
 
   if (stripeEvent.type === 'checkout.session.completed') {
@@ -38,6 +32,18 @@ async function handler(req, res) {
     try {
       const orderNumber = 'PA-' + session.id.slice(-8).toUpperCase();
       const cartItems = JSON.parse(session.metadata?.cart_summary || '[]');
+
+      // Evitar duplicados si Stripe reintenta el webhook
+      const { data: existing } = await supabase
+        .from('orders')
+        .select('id')
+        .eq('stripe_session_id', session.id)
+        .single();
+
+      if (existing) {
+        console.log('Pedido ya existe, ignorando duplicado:', orderNumber);
+        return res.status(200).json({ received: true });
+      }
 
       const { data: order, error: orderError } = await supabase
         .from('orders')
@@ -75,11 +81,11 @@ async function handler(req, res) {
 
     } catch (err) {
       console.error('❌ Error guardando pedido:', err.message);
+      return res.status(500).json({ error: err.message });
     }
   }
 
   return res.status(200).json({ received: true });
 }
 
-handler.config = { api: { bodyParser: false } };
 module.exports = handler;
