@@ -6,7 +6,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
-export const config = {
+module.exports.config = {
   api: { bodyParser: false },
 };
 
@@ -19,7 +19,7 @@ async function getRawBody(req) {
   });
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -43,7 +43,6 @@ export default async function handler(req, res) {
       const orderNumber = 'PA-' + session.id.slice(-8).toUpperCase();
       const cartItems = JSON.parse(session.metadata?.cart_summary || '[]');
 
-      // Guardar orden principal
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -59,7 +58,6 @@ export default async function handler(req, res) {
 
       if (orderError) throw orderError;
 
-      // Guardar items del pedido
       if (cartItems.length > 0) {
         const items = cartItems.map(item => ({
           order_id: order.id,
@@ -67,7 +65,7 @@ export default async function handler(req, res) {
           product_name: item.name,
           license_type: item.license || 'Licencia digital',
           quantity: item.qty || 1,
-          unit_price: session.amount_total / 100 / cartItems.reduce((s, i) => s + (i.qty || 1), 0),
+          unit_price: item.price || 0,
         }));
 
         const { error: itemsError } = await supabase
@@ -81,9 +79,8 @@ export default async function handler(req, res) {
 
     } catch (err) {
       console.error('❌ Error guardando pedido:', err.message);
-      // Retornamos 200 igual para que Stripe no reintente
     }
   }
 
   return res.status(200).json({ received: true });
-}
+};

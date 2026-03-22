@@ -1,6 +1,6 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       cancel_url: `${siteUrl}/?canceled=true`,
       metadata: {
         customer_name: customerName,
-        cart_summary: JSON.stringify(cart.map(i => ({ id: i.id, name: i.name, qty: i.quantity }))),
+        cart_summary: JSON.stringify(cart.map(i => ({ id: i.id, name: i.name, qty: i.quantity, license: i.license, price: i.price }))),
       },
     });
 
@@ -46,4 +46,4 @@ export default async function handler(req, res) {
     console.error('Stripe error:', error.message);
     return res.status(500).json({ error: error.message });
   }
-}
+};
