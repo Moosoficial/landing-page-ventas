@@ -457,7 +457,7 @@
         payBtn.style.pointerEvents = 'none';
 
         try {
-          const response = await fetch('/.netlify/functions/create-checkout-session', {
+          const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -515,7 +515,7 @@
     }
 
     try {
-      const response = await fetch(`/.netlify/functions/get-session?session_id=${sessionId}`);
+      const response = await fetch(`/api/get-session?session_id=${sessionId}`);
       const data = await response.json();
 
       initSuccessPage({
