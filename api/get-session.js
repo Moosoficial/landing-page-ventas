@@ -18,7 +18,6 @@ module.exports = async function handler(req, res) {
     const amountTotal = session.amount_total / 100;
     const cartItems = JSON.parse(session.metadata?.cart_summary || '[]');
 
-    // Guardar en Supabase si el pago fue exitoso
     if (session.payment_status === 'paid') {
       const supabase = createClient(
         process.env.SUPABASE_URL,
@@ -63,26 +62,39 @@ module.exports = async function handler(req, res) {
             await supabase.from('order_items').insert(items);
           }
 
-          // Enviar email de confirmacion
+          // Asignar claves de licencia del pool
+          const assignedKeys = await assignLicenseKeys(supabase, order.id, customerEmail, cartItems);
+
+          // Enviar email con las claves
           await sendConfirmationEmail({
             orderNumber,
             customerEmail,
             customerName,
             amountTotal,
             cartItems,
+            assignedKeys,
           });
 
-          // Marcar email como enviado
           await supabase
             .from('orders')
             .update({ email_sent: true })
             .eq('id', order.id);
 
-          console.log('✅ Pedido guardado y email enviado:', orderNumber);
+          console.log('✅ Pedido guardado, licencias asignadas y email enviado:', orderNumber);
         }
       } else if (!existing.email_sent) {
-        // Orden ya existe pero email no fue enviado
-        await sendConfirmationEmail({ orderNumber, customerEmail, customerName, amountTotal, cartItems });
+        // Orden ya existe pero email no fue enviado — buscar claves ya asignadas
+        const { data: keys } = await supabase
+          .from('license_keys')
+          .select('product_key, key_value')
+          .eq('order_id', existing.id);
+
+        const assignedKeys = (keys || []).map(k => ({
+          productName: cartItems.find(i => i.id === k.product_key)?.name || k.product_key,
+          keyValue: k.key_value,
+        }));
+
+        await sendConfirmationEmail({ orderNumber, customerEmail, customerName, amountTotal, cartItems, assignedKeys });
         await supabase.from('orders').update({ email_sent: true }).eq('stripe_session_id', session.id);
       }
     }
@@ -101,7 +113,56 @@ module.exports = async function handler(req, res) {
   }
 };
 
-async function sendConfirmationEmail({ orderNumber, customerEmail, customerName, amountTotal, cartItems }) {
+// ─── Asignar claves del pool para cada item del carrito ───────────────────────
+async function assignLicenseKeys(supabase, orderId, customerEmail, cartItems) {
+  const assigned = [];
+
+  for (const item of cartItems) {
+    const qty = item.qty || 1;
+
+    for (let i = 0; i < qty; i++) {
+      // Buscar una clave disponible para este producto
+      const { data: key, error } = await supabase
+        .from('license_keys')
+        .select('id, key_value')
+        .eq('product_key', item.id)
+        .eq('status', 'available')
+        .limit(1)
+        .maybeSingle();
+
+      if (error) {
+        console.error(`Error buscando clave para ${item.id}:`, error.message);
+        continue;
+      }
+
+      if (!key) {
+        // Sin stock — registrar alerta pero no bloquear (pago ya procesado)
+        console.warn(`⚠️  Sin claves disponibles para: ${item.id}`);
+        assigned.push({ productName: item.name, keyValue: null });
+        continue;
+      }
+
+      // Marcar como asignada
+      await supabase
+        .from('license_keys')
+        .update({
+          status: 'assigned',
+          assigned_to_email: customerEmail,
+          assigned_at: new Date().toISOString(),
+          order_id: orderId,
+        })
+        .eq('id', key.id);
+
+      assigned.push({ productName: item.name, keyValue: key.key_value });
+      console.log(`🔑 Clave asignada para ${item.id}:`, key.key_value);
+    }
+  }
+
+  return assigned;
+}
+
+// ─── Email de confirmación con claves ─────────────────────────────────────────
+async function sendConfirmationEmail({ orderNumber, customerEmail, customerName, amountTotal, cartItems, assignedKeys = [] }) {
   try {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -113,10 +174,27 @@ async function sendConfirmationEmail({ orderNumber, customerEmail, customerName,
       </tr>
     `).join('');
 
+    // Bloque de claves de licencia
+    const keysHtml = assignedKeys.length > 0 ? `
+      <div style="margin: 0 32px 32px;">
+        <h3 style="color:#003345; font-size:16px; margin:0 0 16px;">🔑 Tus Claves de Licencia</h3>
+        ${assignedKeys.map(k => `
+          <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:12px; padding:16px 20px; margin-bottom:12px;">
+            <p style="margin:0 0 8px; color:#64748b; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${k.productName}</p>
+            ${k.keyValue
+              ? `<p style="margin:0; font-family:monospace; font-size:18px; font-weight:700; color:#003345; letter-spacing:2px; word-break:break-all;">${k.keyValue}</p>
+                 <p style="margin:8px 0 0; color:#64748b; font-size:12px;">Guarda esta clave en un lugar seguro · No la compartas</p>`
+              : `<p style="margin:0; color:#dc2626; font-size:14px;">Tu clave será enviada en un correo separado en las próximas horas.</p>`
+            }
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
     await resend.emails.send({
       from: 'Precision Atelier <onboarding@resend.dev>',
       to: customerEmail,
-      subject: `✅ Pedido Confirmado — ${orderNumber}`,
+      subject: `🔑 Licencia Lista — ${orderNumber}`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -163,19 +241,15 @@ async function sendConfirmationEmail({ orderNumber, customerEmail, customerName,
               </table>
 
               <!-- Total -->
-              <div style="border-top:2px solid #003345; padding-top:16px; text-align:right;">
+              <div style="border-top:2px solid #003345; padding-top:16px; text-align:right; margin-bottom:8px;">
                 <span style="color:#64748b; font-size:14px;">Total pagado: </span>
                 <span style="color:#003345; font-size:22px; font-weight:800;">€${amountTotal.toFixed(2)}</span>
               </div>
+              <p style="text-align:right; margin:0; color:#94a3b8; font-size:12px;">IVA incluido</p>
             </div>
 
-            <!-- Info box -->
-            <div style="background:#f0fdf4; border-left:4px solid #00696b; margin:0 32px 32px; padding:16px 20px; border-radius:0 8px 8px 0;">
-              <p style="margin:0; color:#166534; font-size:14px; line-height:1.6;">
-                📧 Tu licencia será enviada a este correo en los próximos minutos.<br>
-                🔑 Si tienes algún problema, contáctanos con tu número de orden.
-              </p>
-            </div>
+            <!-- License keys -->
+            ${keysHtml}
 
             <!-- Footer -->
             <div style="background:#f8fafc; padding:24px 32px; text-align:center; border-top:1px solid #e2e8f0;">
@@ -190,7 +264,7 @@ async function sendConfirmationEmail({ orderNumber, customerEmail, customerName,
       `,
     });
 
-    console.log('📧 Email enviado a:', customerEmail);
+    console.log('📧 Email con licencias enviado a:', customerEmail);
   } catch (err) {
     console.error('❌ Error enviando email:', err.message);
   }
