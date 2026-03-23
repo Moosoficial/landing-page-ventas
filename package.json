@@ -4,6 +4,7 @@
   "description": "Precision Atelier — Software Sales Landing Page",
   "dependencies": {
     "stripe": "^14.0.0",
-    "@supabase/supabase-js": "^2.0.0"
+    "@supabase/supabase-js": "^2.0.0",
+    "resend": "^3.0.0"
   }
 }
