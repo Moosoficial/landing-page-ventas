@@ -9,6 +9,9 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
 
+  <!-- Supabase Auth client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
   <!-- Three.js for 3D interactive elements -->
   <script type="importmap">
   {
@@ -43,6 +46,12 @@
         <a href="#" class="nav-orders-btn" data-page="orders" id="navOrdersBtn" title="Mis Pedidos">
           <span class="material-icons">receipt_long</span>
         </a>
+        <div class="nav-auth" id="navAuth">
+          <button class="btn btn-ghost btn-sm" id="navLoginBtn">
+            <span class="material-icons">person</span>
+            Iniciar sesión
+          </button>
+        </div>
         <a href="#" class="nav-cart" data-page="checkout" id="navCartBtn">
           <span class="material-icons">shopping_cart</span>
           <span class="badge" id="cartBadge">2</span>
@@ -610,6 +619,100 @@
               Recibirás otro correo cuando tu licencia esté lista para descargar.
             </p>
           </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 6: LOGIN                                                           -->
+  <!-- ========================================================================= -->
+  <main class="page" id="page-login">
+    <div style="height: 72px"></div>
+    <section class="section">
+      <div class="container" style="max-width:480px;">
+        <div class="auth-card">
+          <div class="auth-header">
+            <span class="logo-icon"><span class="material-icons">precision_manufacturing</span></span>
+            <h1 class="display-sm">Iniciar Sesión</h1>
+            <p style="color:var(--on-surface-variant);">Accede a tu cuenta para ver tus pedidos</p>
+          </div>
+          <form id="loginForm" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="loginEmail">Correo Electrónico</label>
+              <input class="form-input" type="email" id="loginEmail" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="loginPassword">Contraseña</label>
+              <div style="position:relative;">
+                <input class="form-input" type="password" id="loginPassword" placeholder="Tu contraseña" required style="padding-right:48px;">
+                <button type="button" id="toggleLoginPass" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-variant);">
+                  <span class="material-icons" style="font-size:1.2rem;">visibility</span>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" id="loginSubmitBtn" style="width:100%;justify-content:center;margin-top:var(--space-2);">
+              <span class="material-icons">login</span>
+              Iniciar Sesión
+            </button>
+          </form>
+          <div class="auth-divider"><span>¿No tienes cuenta?</span></div>
+          <button class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;" onclick="window.showPage('register')">
+            <span class="material-icons">person_add</span>
+            Crear cuenta gratis
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- PAGE 7: REGISTER                                                          -->
+  <!-- ========================================================================= -->
+  <main class="page" id="page-register">
+    <div style="height: 72px"></div>
+    <section class="section">
+      <div class="container" style="max-width:480px;">
+        <div class="auth-card">
+          <div class="auth-header">
+            <span class="logo-icon"><span class="material-icons">precision_manufacturing</span></span>
+            <h1 class="display-sm">Crear Cuenta</h1>
+            <p style="color:var(--on-surface-variant);">Regístrate para gestionar tus pedidos</p>
+          </div>
+          <form id="registerForm" novalidate>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="regFirstName">Nombre</label>
+                <input class="form-input" type="text" id="regFirstName" placeholder="Tu nombre" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="regLastName">Apellido</label>
+                <input class="form-input" type="text" id="regLastName" placeholder="Tu apellido" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regEmail">Correo Electrónico</label>
+              <input class="form-input" type="email" id="regEmail" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="regPassword">Contraseña</label>
+              <div style="position:relative;">
+                <input class="form-input" type="password" id="regPassword" placeholder="Mínimo 8 caracteres" required style="padding-right:48px;">
+                <button type="button" id="toggleRegPass" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--on-surface-variant);">
+                  <span class="material-icons" style="font-size:1.2rem;">visibility</span>
+                </button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg" id="registerSubmitBtn" style="width:100%;justify-content:center;margin-top:var(--space-2);">
+              <span class="material-icons">person_add</span>
+              Crear Cuenta
+            </button>
+          </form>
+          <div class="auth-divider"><span>¿Ya tienes cuenta?</span></div>
+          <button class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;" onclick="window.showPage('login')">
+            <span class="material-icons">login</span>
+            Iniciar Sesión
+          </button>
         </div>
       </div>
     </section>

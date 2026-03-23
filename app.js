@@ -6,6 +6,12 @@
 (function () {
   'use strict';
 
+  // --- Supabase Auth ---
+  const SUPABASE_URL = 'https://yompxjofzlvunigfwlqi.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvbXB4am9memx2dW5pZ2Z3bHFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMTE0OTYsImV4cCI6MjA4OTc4NzQ5Nn0.t25t9i2OnHiONox5bjwzdHvnv13sa1fc-EU3c4JLe_U';
+  const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUser = null;
+
   // --- Cart State ---
   const CART_KEY = 'precision_atelier_cart';
   let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
@@ -103,6 +109,7 @@
     initFAQ();
     initSkeletonLoading();
     initOrdersPage();
+    initAuth();
     checkUrlParams();
   }
 
@@ -898,13 +905,36 @@
 
     if (!searchBtn) return;
 
+    // Cuando se navega a orders, verificar sesion
+    const origShowPage = window.showPage;
+    window.showPage = function(pageId) {
+      origShowPage(pageId);
+      if (pageId === 'orders') {
+        if (!currentUser) {
+          origShowPage('login');
+          Toast.show('Inicia sesión para ver tus pedidos', 'info');
+          return;
+        }
+        // Auto-cargar pedidos del usuario logueado
+        emailInput.value = currentUser.email;
+        loadOrders(currentUser.email);
+      }
+    };
+
     searchBtn.addEventListener('click', async () => {
       const email = emailInput.value.trim();
       if (!email || !email.includes('@')) {
         Toast.show('Ingresa un email válido', 'error');
         return;
       }
+      loadOrders(email);
+    });
 
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchBtn.click();
+    });
+
+    async function loadOrders(email) {
       searchBtn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Buscando...';
       searchBtn.disabled = true;
 
@@ -965,12 +995,158 @@
         searchBtn.innerHTML = '<span class="material-icons">search</span> Buscar pedidos';
         searchBtn.disabled = false;
       }
+    }
+  }
+
+  // ===================== AUTH =====================
+  function initAuth() {
+    // Escuchar cambios de sesion
+    sbClient.auth.onAuthStateChange((event, session) => {
+      currentUser = session?.user || null;
+      updateNavAuth();
+      if (event === 'SIGNED_IN') {
+        Toast.show('Sesión iniciada correctamente', 'success');
+      }
     });
 
-    // Buscar con Enter
-    emailInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') searchBtn.click();
+    // Verificar sesion activa al cargar
+    sbClient.auth.getSession().then(({ data }) => {
+      currentUser = data.session?.user || null;
+      updateNavAuth();
     });
+
+    // Nav login button
+    document.getElementById('navLoginBtn')?.addEventListener('click', () => {
+      if (currentUser) {
+        window.showPage('orders');
+      } else {
+        window.showPage('login');
+      }
+    });
+
+    // Login form
+    document.getElementById('loginForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginSubmitBtn');
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        Toast.show('Completa todos los campos', 'error');
+        return;
+      }
+
+      btn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Entrando...';
+      btn.disabled = true;
+
+      const { error } = await sbClient.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        Toast.show('Email o contraseña incorrectos', 'error');
+        btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+        btn.disabled = false;
+      } else {
+        window.showPage('orders');
+      }
+    });
+
+    // Register form
+    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('registerSubmitBtn');
+      const firstName = document.getElementById('regFirstName').value.trim();
+      const lastName = document.getElementById('regLastName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+
+      if (!firstName || !lastName || !email || !password) {
+        Toast.show('Completa todos los campos', 'error');
+        return;
+      }
+      if (password.length < 8) {
+        Toast.show('La contraseña debe tener al menos 8 caracteres', 'error');
+        return;
+      }
+
+      btn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Creando cuenta...';
+      btn.disabled = true;
+
+      const { error } = await sbClient.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: `${firstName} ${lastName}` } },
+      });
+
+      if (error) {
+        Toast.show(error.message, 'error');
+        btn.innerHTML = '<span class="material-icons">person_add</span> Crear Cuenta';
+        btn.disabled = false;
+      } else {
+        Toast.show('Cuenta creada. Revisa tu email para confirmar.', 'success', 5000);
+        window.showPage('login');
+      }
+    });
+
+    // Toggle password visibility
+    document.getElementById('toggleLoginPass')?.addEventListener('click', () => {
+      const input = document.getElementById('loginPassword');
+      const icon = document.querySelector('#toggleLoginPass .material-icons');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+
+    document.getElementById('toggleRegPass')?.addEventListener('click', () => {
+      const input = document.getElementById('regPassword');
+      const icon = document.querySelector('#toggleRegPass .material-icons');
+      input.type = input.type === 'password' ? 'text' : 'password';
+      icon.textContent = input.type === 'password' ? 'visibility' : 'visibility_off';
+    });
+  }
+
+  function updateNavAuth() {
+    const navAuth = document.getElementById('navAuth');
+    if (!navAuth) return;
+
+    if (currentUser) {
+      const name = currentUser.user_metadata?.full_name || currentUser.email.split('@')[0];
+      navAuth.innerHTML = `
+        <div class="nav-user-menu">
+          <button class="nav-user-btn" id="navUserBtn">
+            <span class="nav-user-avatar">${name[0].toUpperCase()}</span>
+            <span class="nav-user-name">${name}</span>
+            <span class="material-icons" style="font-size:1rem;">expand_more</span>
+          </button>
+          <div class="nav-user-dropdown" id="navUserDropdown">
+            <a href="#" onclick="window.showPage('orders'); return false;">
+              <span class="material-icons">receipt_long</span> Mis Pedidos
+            </a>
+            <button id="logoutBtn">
+              <span class="material-icons">logout</span> Cerrar Sesión
+            </button>
+          </div>
+        </div>`;
+
+      document.getElementById('navUserBtn')?.addEventListener('click', () => {
+        document.getElementById('navUserDropdown')?.classList.toggle('open');
+      });
+
+      document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+        await sbClient.auth.signOut();
+        currentUser = null;
+        updateNavAuth();
+        window.showPage('home');
+        Toast.show('Sesión cerrada', 'info');
+      });
+    } else {
+      navAuth.innerHTML = `
+        <button class="btn btn-ghost btn-sm" id="navLoginBtn">
+          <span class="material-icons">person</span>
+          Iniciar sesión
+        </button>`;
+      document.getElementById('navLoginBtn')?.addEventListener('click', () => {
+        window.showPage('login');
+      });
+    }
   }
 
   // ===================== SKELETON LOADING =====================
