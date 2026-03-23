@@ -459,12 +459,9 @@
     const payBtn = document.getElementById('confirmPayBtn');
 
     if (subtotalEl && totalEl) {
-      const subtotal = getCartTotal();
-      const tax = subtotal * 0.21; // 21% IVA
-      const total = subtotal + tax;
+      const total = getCartTotal(); // IVA incluido en precio
 
-      subtotalEl.textContent = `€${subtotal.toFixed(2)}`;
-      if (taxEl) taxEl.textContent = `€${tax.toFixed(2)}`;
+      subtotalEl && (subtotalEl.textContent = `€${total.toFixed(2)}`);
       totalEl.textContent = `€${total.toFixed(2)}`;
 
       if (payBtn) {
