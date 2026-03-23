@@ -216,10 +216,6 @@
         target.classList.add('active');
         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-        // Lazy-init 3D scene for product page
-        if (pageId === 'product' && typeof window.initProductScene === 'function') {
-          window.initProductScene();
-        }
       }
 
       // Mostrar footer solo en home
@@ -845,8 +841,10 @@
             </div>
           `).join('');
 
-          // Set active theme color and current product key for detail page
-          window.activeProductTheme = data.theme;
+          // Update product image
+          const pdImg = document.getElementById('pd-image');
+          if (pdImg) { pdImg.src = data.image; pdImg.alt = data.title; }
+
           window.currentProductKey = productKey;
         }
 
