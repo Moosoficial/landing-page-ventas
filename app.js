@@ -215,6 +215,10 @@
         }
       }
 
+      // Mostrar footer solo en home
+      const footer = document.getElementById('siteFooter');
+      if (footer) footer.style.display = pageId === 'home' ? '' : 'none';
+
       // Update nav active state
       navLinksAnchors.forEach(a => a.classList.remove('active'));
       const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
