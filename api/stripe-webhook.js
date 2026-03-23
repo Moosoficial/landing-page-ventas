@@ -32,18 +32,24 @@ async function handler(req, res) {
     const session = stripeEvent.data.object;
 
     try {
+      console.log('🔑 SUPABASE_URL:', process.env.SUPABASE_URL ? 'SET' : 'NOT SET');
+      console.log('🔑 SUPABASE_SERVICE_KEY:', process.env.SUPABASE_SERVICE_KEY ? 'SET' : 'NOT SET');
+
       const orderNumber = 'PA-' + session.id.slice(-8).toUpperCase();
       const cartItems = JSON.parse(session.metadata?.cart_summary || '[]');
+      console.log('🛒 Cart items:', cartItems.length, '| Order:', orderNumber);
 
-      // Evitar duplicados si Stripe reintenta el webhook
-      const { data: existing } = await supabase
+      // Evitar duplicados
+      const { data: existing, error: checkError } = await supabase
         .from('orders')
         .select('id')
         .eq('stripe_session_id', session.id)
-        .single();
+        .maybeSingle();
+
+      if (checkError) console.error('Check error:', checkError.message);
 
       if (existing) {
-        console.log('Pedido ya existe, ignorando duplicado:', orderNumber);
+        console.log('Pedido ya existe:', orderNumber);
         return res.status(200).json({ received: true });
       }
 
@@ -60,7 +66,12 @@ async function handler(req, res) {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('❌ Order insert error:', JSON.stringify(orderError));
+        throw orderError;
+      }
+
+      console.log('✅ Orden creada:', order.id);
 
       if (cartItems.length > 0) {
         const items = cartItems.map(item => ({
@@ -76,13 +87,16 @@ async function handler(req, res) {
           .from('order_items')
           .insert(items);
 
-        if (itemsError) throw itemsError;
+        if (itemsError) {
+          console.error('❌ Items insert error:', JSON.stringify(itemsError));
+          throw itemsError;
+        }
       }
 
-      console.log('✅ Pedido guardado en Supabase:', orderNumber);
+      console.log('✅ Pedido completo guardado en Supabase:', orderNumber);
 
     } catch (err) {
-      console.error('❌ Error guardando pedido:', err.message);
+      console.error('❌ Error guardando pedido:', err.message, JSON.stringify(err));
       return res.status(500).json({ error: err.message });
     }
   }
