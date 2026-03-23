@@ -222,6 +222,10 @@
       const footer = document.getElementById('siteFooter');
       if (footer) footer.style.display = pageId === 'home' ? '' : 'none';
 
+      // Ocultar nav en pagina de exito (como Amazon/Stripe)
+      const mainNav = document.getElementById('mainNav');
+      if (mainNav) mainNav.style.display = pageId === 'success' ? 'none' : '';
+
       // Update nav active state
       navLinksAnchors.forEach(a => a.classList.remove('active'));
       const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
@@ -1046,19 +1050,23 @@
 
   // ===================== AUTH =====================
   function initAuth() {
+    let sessionChecked = false;
+
+    // Verificar sesion activa al cargar (primero, para saber si ya habia sesion)
+    sbClient.auth.getSession().then(({ data }) => {
+      currentUser = data.session?.user || null;
+      sessionChecked = true;
+      updateNavAuth();
+    });
+
     // Escuchar cambios de sesion
     sbClient.auth.onAuthStateChange((event, session) => {
       currentUser = session?.user || null;
       updateNavAuth();
-      if (event === 'SIGNED_IN') {
+      // Solo mostrar toast en logins reales, no en restauracion de sesion al cargar
+      if (event === 'SIGNED_IN' && sessionChecked) {
         Toast.show('Sesión iniciada correctamente', 'success');
       }
-    });
-
-    // Verificar sesion activa al cargar
-    sbClient.auth.getSession().then(({ data }) => {
-      currentUser = data.session?.user || null;
-      updateNavAuth();
     });
 
     // Google OAuth
