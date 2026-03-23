@@ -224,7 +224,16 @@
 
       // Ocultar nav en pagina de exito (como Amazon/Stripe)
       const mainNav = document.getElementById('mainNav');
-      if (mainNav) mainNav.style.display = pageId === 'success' ? 'none' : '';
+      if (mainNav) {
+        mainNav.style.display = pageId === 'success' ? 'none' : '';
+        // Al re-mostrar el nav, refrescar estado de auth
+        if (pageId !== 'success' && typeof updateNavAuth === 'function') updateNavAuth();
+      }
+
+      // Cargar pedidos del usuario al navegar a orders
+      if (pageId === 'orders') {
+        if (typeof window.loadUserOrders === 'function') window.loadUserOrders();
+      }
 
       // Update nav active state
       navLinksAnchors.forEach(a => a.classList.remove('active'));
@@ -262,10 +271,10 @@
       requireAuthThen('checkout');
     });
 
-    // Orders icon -> mis pedidos
+    // Orders icon -> mis pedidos (requiere login)
     document.getElementById('navOrdersBtn').addEventListener('click', (e) => {
       e.preventDefault();
-      showPage('orders');
+      requireAuthThen('orders');
     });
 
     // Hero CTA -> scroll to products
@@ -899,103 +908,72 @@
 
   // ===================== MIS PEDIDOS =====================
   function initOrdersPage() {
-    const searchBtn = document.getElementById('searchOrdersBtn');
-    const emailInput = document.getElementById('ordersEmail');
     const resultContainer = document.getElementById('ordersResult');
+    const subtitle = document.getElementById('ordersSubtitle');
+    if (!resultContainer) return;
 
-    if (!searchBtn) return;
+    // Exponer para que showPage lo llame al navegar a orders
+    window.loadUserOrders = async function() {
+      if (!currentUser) return;
 
-    // Cuando se navega a orders, verificar sesion
-    const origShowPage = window.showPage;
-    window.showPage = function(pageId) {
-      origShowPage(pageId);
-      if (pageId === 'orders') {
-        if (!currentUser) {
-          origShowPage('login');
-          Toast.show('Inicia sesión para ver tus pedidos', 'info');
-          return;
-        }
-        // Auto-cargar pedidos del usuario logueado
-        emailInput.value = currentUser.email;
-        loadOrders(currentUser.email);
-      }
-    };
+      if (subtitle) subtitle.textContent = `Pedidos de ${currentUser.email}`;
 
-    searchBtn.addEventListener('click', async () => {
-      const email = emailInput.value.trim();
-      if (!email || !email.includes('@')) {
-        Toast.show('Ingresa un email válido', 'error');
-        return;
-      }
-      loadOrders(email);
-    });
-
-    emailInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') searchBtn.click();
-    });
-
-    async function loadOrders(email) {
-      searchBtn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Buscando...';
-      searchBtn.disabled = true;
+      resultContainer.innerHTML = `<div style="text-align:center; padding: var(--space-8) 0;">
+        <span class="material-icons" style="font-size:40px; color:var(--outline-variant); animation:spin 1s linear infinite">autorenew</span>
+      </div>`;
 
       try {
-        const res = await fetch(`/api/get-orders?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`/api/get-orders?email=${encodeURIComponent(currentUser.email)}`);
         const data = await res.json();
 
         if (!data.orders || data.orders.length === 0) {
           resultContainer.innerHTML = `
             <div style="text-align:center; padding: var(--space-12) 0;">
               <span class="material-icons" style="font-size:64px; color:var(--outline-variant);">inbox</span>
-              <h3 style="margin: var(--space-4) 0 var(--space-2);">No se encontraron pedidos</h3>
-              <p style="color:var(--on-surface-variant);">No hay pedidos asociados a <strong>${email}</strong></p>
+              <h3 style="margin: var(--space-4) 0 var(--space-2);">Sin pedidos aún</h3>
+              <p style="color:var(--on-surface-variant);">Aquí aparecerán tus compras una vez que realices tu primer pedido.</p>
             </div>`;
         } else {
-          resultContainer.innerHTML = `
-            <p style="color:var(--on-surface-variant); margin-bottom:var(--space-6);">
-              ${data.orders.length} pedido${data.orders.length > 1 ? 's' : ''} encontrado${data.orders.length > 1 ? 's' : ''} para <strong>${email}</strong>
-            </p>
-            ${data.orders.map(order => `
-              <div class="order-history-card">
-                <div class="order-history-header">
-                  <div>
-                    <span class="label-sm" style="color:var(--on-surface-variant);">Número de orden</span>
-                    <p class="order-history-number">${order.order_number}</p>
-                  </div>
-                  <div style="text-align:right;">
-                    <span class="label-sm" style="color:var(--on-surface-variant);">Fecha</span>
-                    <p style="font-weight:600; margin:0;">${new Date(order.created_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}</p>
-                  </div>
-                  <div style="text-align:right;">
-                    <span class="label-sm" style="color:var(--on-surface-variant);">Total</span>
-                    <p style="font-weight:800; font-size:1.25rem; color:var(--primary); margin:0;">€${order.total_amount.toFixed(2)}</p>
-                  </div>
-                  <span class="order-status-badge">
-                    <span class="status-dot"></span>
-                    Completado
-                  </span>
+          if (subtitle) subtitle.textContent = `${data.orders.length} pedido${data.orders.length > 1 ? 's' : ''} en tu cuenta`;
+          resultContainer.innerHTML = data.orders.map(order => `
+            <div class="order-history-card">
+              <div class="order-history-header">
+                <div>
+                  <span class="label-sm" style="color:var(--on-surface-variant);">Número de orden</span>
+                  <p class="order-history-number">${order.order_number}</p>
                 </div>
-                <div class="order-history-items">
-                  ${(order.order_items || []).map(item => `
-                    <div class="order-history-item">
-                      <span class="material-icons" style="color:var(--secondary); font-size:1.2rem;">inventory_2</span>
-                      <div>
-                        <p style="margin:0; font-weight:600;">${item.product_name}</p>
-                        <p style="margin:0; font-size:0.8125rem; color:var(--on-surface-variant);">${item.license_type} · Cant: ${item.quantity}</p>
-                      </div>
-                      <span style="margin-left:auto; font-weight:700; color:var(--primary);">€${item.unit_price.toFixed(2)}</span>
-                    </div>
-                  `).join('')}
+                <div style="text-align:right;">
+                  <span class="label-sm" style="color:var(--on-surface-variant);">Fecha</span>
+                  <p style="font-weight:600; margin:0;">${new Date(order.created_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}</p>
                 </div>
+                <div style="text-align:right;">
+                  <span class="label-sm" style="color:var(--on-surface-variant);">Total</span>
+                  <p style="font-weight:800; font-size:1.25rem; color:var(--primary); margin:0;">€${order.total_amount.toFixed(2)}</p>
+                </div>
+                <span class="order-status-badge">
+                  <span class="status-dot"></span>
+                  Completado
+                </span>
               </div>
-            `).join('')}`;
+              <div class="order-history-items">
+                ${(order.order_items || []).map(item => `
+                  <div class="order-history-item">
+                    <span class="material-icons" style="color:var(--secondary); font-size:1.2rem;">inventory_2</span>
+                    <div>
+                      <p style="margin:0; font-weight:600;">${item.product_name}</p>
+                      <p style="margin:0; font-size:0.8125rem; color:var(--on-surface-variant);">${item.license_type} · Cant: ${item.quantity}</p>
+                    </div>
+                    <span style="margin-left:auto; font-weight:700; color:var(--primary);">€${item.unit_price.toFixed(2)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `).join('');
         }
       } catch (err) {
-        Toast.show('Error al buscar pedidos. Intenta de nuevo.', 'error');
-      } finally {
-        searchBtn.innerHTML = '<span class="material-icons">search</span> Buscar pedidos';
-        searchBtn.disabled = false;
+        Toast.show('Error al cargar pedidos. Intenta de nuevo.', 'error');
       }
-    }
+    };
   }
 
   // ===================== AUTH =====================
