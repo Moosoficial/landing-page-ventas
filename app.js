@@ -256,10 +256,10 @@
       showPage('home');
     });
 
-    // Cart icon -> checkout
+    // Cart icon -> checkout (requiere login)
     document.getElementById('navCartBtn').addEventListener('click', (e) => {
       e.preventDefault();
-      showPage('checkout');
+      requireAuthThen('checkout');
     });
 
     // Orders icon -> mis pedidos
@@ -278,7 +278,7 @@
       document.getElementById('topSellers').scrollIntoView({ behavior: 'smooth' });
     });
 
-    // "Add to cart" on product detail page -> adds product then goes to checkout
+    // "Add to cart" on product detail page -> requiere login
     const addCartBtn = document.getElementById('addToCartBtn');
     if (addCartBtn) {
       addCartBtn.addEventListener('click', () => {
@@ -293,12 +293,39 @@
             license: data.license
           });
         }
-        showPage('checkout');
+        requireAuthThen('checkout');
       });
     }
 
+    // Redirige a login si no hay sesion, luego lleva a la pagina destino
+    function requireAuthThen(destination) {
+      if (currentUser) {
+        showPage(destination);
+        if (destination === 'checkout') prefillCheckoutForm();
+      } else {
+        window._authRedirect = destination;
+        showPage('login');
+        Toast.show('Inicia sesión para continuar con tu compra', 'info');
+      }
+    }
+
+    window.requireAuthThen = requireAuthThen;
+
     // Expose globally for product cards
     window.showPage = showPage;
+  }
+
+  function prefillCheckoutForm() {
+    if (!currentUser) return;
+    const emailInput = document.getElementById('email');
+    const firstNameInput = document.getElementById('firstName');
+    const lastNameInput = document.getElementById('lastName');
+    const fullName = currentUser.user_metadata?.full_name || '';
+    const parts = fullName.trim().split(' ');
+
+    if (emailInput && !emailInput.value) emailInput.value = currentUser.email;
+    if (firstNameInput && !firstNameInput.value) firstNameInput.value = parts[0] || '';
+    if (lastNameInput && !lastNameInput.value) lastNameInput.value = parts.slice(1).join(' ') || '';
   }
 
   // ===================== CATEGORY FILTER =====================
@@ -1081,7 +1108,10 @@
         btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
         btn.disabled = false;
       } else {
-        window.showPage('orders');
+        const redirect = window._authRedirect || 'orders';
+        window._authRedirect = null;
+        window.showPage(redirect);
+        if (redirect === 'checkout') prefillCheckoutForm();
       }
     });
 
