@@ -12,9 +12,12 @@
   const sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
 
-  // --- Cart State ---
-  const CART_KEY = 'precision_atelier_cart';
-  let cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
+  // --- Cart State (por usuario — clave dinámica) ---
+  const CART_KEY_PREFIX = 'pa_cart_';
+  function getCartKey() {
+    return currentUser ? `${CART_KEY_PREFIX}${currentUser.id}` : null;
+  }
+  let cart = [];
 
   // --- Toast System ---
   const Toast = {
@@ -115,7 +118,15 @@
 
   // ===================== CART FUNCTIONS =====================
   function saveCart() {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    const key = getCartKey();
+    if (key) localStorage.setItem(key, JSON.stringify(cart));
+    updateCartBadge();
+    updateCartUI();
+  }
+
+  function loadUserCart() {
+    const key = getCartKey();
+    cart = key ? (JSON.parse(localStorage.getItem(key)) || []) : [];
     updateCartBadge();
     updateCartUI();
   }
@@ -980,38 +991,31 @@
   function initAuth() {
     let sessionChecked = false;
 
-    // Verificar sesion activa al cargar (primero, para saber si ya habia sesion)
+    // Verificar sesion activa al cargar
     sbClient.auth.getSession().then(({ data }) => {
       currentUser = data.session?.user || null;
       sessionChecked = true;
       updateNavAuth();
-      // Si no hay sesion, vaciar carrito residual
-      if (!currentUser) {
-        cart = [];
-        saveCart();
-        updateCartBadge();
-      }
+      loadUserCart(); // Carga carrito del usuario si hay sesion, o vacía si no
     });
 
     // Escuchar cambios de sesion
     sbClient.auth.onAuthStateChange((event, session) => {
-      const prevUser = currentUser;
+      const prevUserId = currentUser?.id;
       currentUser = session?.user || null;
       updateNavAuth();
 
       if (event === 'SIGNED_OUT') {
-        // Limpiar carrito al cerrar sesion
+        // Solo limpiar display — los datos siguen en localStorage para cuando regrese
         cart = [];
-        saveCart();
         updateCartBadge();
+        updateCartUI();
       }
 
       if (event === 'SIGNED_IN' && sessionChecked) {
-        // Si cambia de usuario, limpiar carrito
-        if (prevUser && prevUser.id !== currentUser?.id) {
-          cart = [];
-          saveCart();
-          updateCartBadge();
+        if (currentUser?.id !== prevUserId) {
+          // Nuevo usuario o sesion restaurada — cargar su carrito
+          loadUserCart();
         }
         Toast.show('Sesión iniciada correctamente', 'success');
       }
@@ -1151,10 +1155,11 @@
 
       document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         await sbClient.auth.signOut();
+        // No llamar saveCart() — preservar el carrito en localStorage para cuando regrese
         currentUser = null;
         cart = [];
-        saveCart();
         updateCartBadge();
+        updateCartUI();
         updateNavAuth();
         window.showPage('home');
         Toast.show('Sesión cerrada', 'info');
