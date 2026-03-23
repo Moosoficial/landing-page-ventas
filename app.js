@@ -1015,6 +1015,20 @@
       updateNavAuth();
     });
 
+    // Google OAuth
+    async function signInWithGoogle() {
+      const { error } = await sbClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+        },
+      });
+      if (error) Toast.show('Error al conectar con Google', 'error');
+    }
+
+    document.getElementById('googleLoginBtn')?.addEventListener('click', signInWithGoogle);
+    document.getElementById('googleRegisterBtn')?.addEventListener('click', signInWithGoogle);
+
     // Nav login button
     document.getElementById('navLoginBtn')?.addEventListener('click', () => {
       if (currentUser) {
