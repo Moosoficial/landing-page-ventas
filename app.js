@@ -227,7 +227,7 @@
       if (mainNav) {
         mainNav.style.display = pageId === 'success' ? 'none' : '';
         // Al re-mostrar el nav, refrescar estado de auth
-        if (pageId !== 'success' && typeof updateNavAuth === 'function') updateNavAuth();
+        if (pageId !== 'success' && typeof window.updateNavAuth === 'function') window.updateNavAuth();
       }
 
       // Cargar pedidos del usuario al navegar a orders
@@ -1146,6 +1146,9 @@
         window.showPage('login');
       });
     }
+
+    // Exponer globalmente para que showPage pueda llamarla
+    window.updateNavAuth = updateNavAuth;
   }
 
   // ===================== SKELETON LOADING =====================
