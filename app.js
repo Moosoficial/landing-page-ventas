@@ -453,15 +453,12 @@
     }
 
     // Update totals
-    const subtotalEl = document.getElementById('cartSubtotal');
-    const taxEl = document.getElementById('cartTax');
     const totalEl = document.getElementById('cartTotal');
     const payBtn = document.getElementById('confirmPayBtn');
 
-    if (subtotalEl && totalEl) {
+    if (totalEl) {
       const total = getCartTotal(); // IVA incluido en precio
 
-      subtotalEl && (subtotalEl.textContent = `€${total.toFixed(2)}`);
       totalEl.textContent = `€${total.toFixed(2)}`;
 
       if (payBtn) {
@@ -525,7 +522,7 @@
           }
         } catch (error) {
           Toast.show('Error al conectar con el servidor de pagos. Intenta de nuevo.', 'error');
-          payBtn.innerHTML = '<span class="material-icons">lock</span> Continuar al pago seguro — €' + (getCartTotal() * 1.21).toFixed(2);
+          payBtn.innerHTML = '<span class="material-icons">lock</span> Continuar al pago seguro — €' + getCartTotal().toFixed(2);
           payBtn.style.pointerEvents = '';
         }
       });
