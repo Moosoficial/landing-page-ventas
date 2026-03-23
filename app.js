@@ -1152,6 +1152,9 @@
       document.getElementById('logoutBtn')?.addEventListener('click', async () => {
         await sbClient.auth.signOut();
         currentUser = null;
+        cart = [];
+        saveCart();
+        updateCartBadge();
         updateNavAuth();
         window.showPage('home');
         Toast.show('Sesión cerrada', 'info');
