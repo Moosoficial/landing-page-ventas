@@ -246,6 +246,13 @@
         if (typeof window.loadUserOrders === 'function') window.loadUserOrders();
       }
 
+      // Reset login form al mostrar la pagina
+      if (pageId === 'login') {
+        const btn = document.getElementById('loginSubmitBtn');
+        if (btn) { btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión'; btn.disabled = false; }
+        document.getElementById('loginForm')?.reset();
+      }
+
       // Update nav active state
       navLinksAnchors.forEach(a => a.classList.remove('active'));
       const activeLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
@@ -1059,18 +1066,24 @@
       btn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Entrando...';
       btn.disabled = true;
 
-      const { error } = await sbClient.auth.signInWithPassword({ email, password });
+      try {
+        const { error } = await sbClient.auth.signInWithPassword({ email, password });
 
-      if (error) {
-        Toast.show('Email o contraseña incorrectos', 'error');
-        btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
-        btn.disabled = false;
-      } else {
-        const redirect = window._authRedirect || 'orders';
-        window._authRedirect = null;
-        window.showPage(redirect);
-        if (redirect === 'checkout') prefillCheckoutForm();
+        if (error) {
+          Toast.show('Email o contraseña incorrectos', 'error');
+        } else {
+          const redirect = window._authRedirect || 'orders';
+          window._authRedirect = null;
+          window.showPage(redirect);
+          if (redirect === 'checkout') prefillCheckoutForm();
+          return;
+        }
+      } catch (err) {
+        Toast.show('Error de conexión. Intenta de nuevo.', 'error');
       }
+
+      btn.innerHTML = '<span class="material-icons">login</span> Iniciar Sesión';
+      btn.disabled = false;
     });
 
     // Register form
