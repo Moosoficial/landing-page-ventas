@@ -501,14 +501,35 @@
     }
   }
 
-  // ===================== URL PARAMS (Stripe redirect back) =====================
+  // ===================== URL PARAMS (Stripe + Supabase redirects) =====================
   function checkUrlParams() {
     const params = new URLSearchParams(window.location.search);
+    const hash = window.location.hash;
 
+    // Supabase email confirmation callback (#access_token=...)
+    if (hash.includes('access_token')) {
+      window.history.replaceState({}, '', '/');
+      setTimeout(() => {
+        Toast.show('✅ Email confirmado. Ya puedes iniciar sesión.', 'success', 5000);
+        window.showPage('login');
+      }, 600);
+      return;
+    }
+
+    // Supabase error en el hash
+    if (hash.includes('error=')) {
+      window.history.replaceState({}, '', '/');
+      const hashParams = new URLSearchParams(hash.replace('#', ''));
+      const errorDesc = hashParams.get('error_description') || 'Error de verificación';
+      Toast.show(errorDesc.replace(/\+/g, ' '), 'error', 5000);
+      window.showPage('login');
+      return;
+    }
+
+    // Stripe success
     if (params.get('success') === 'true') {
       const sessionId = params.get('session_id');
       handleStripeSuccess(sessionId);
-      // Clean URL
       window.history.replaceState({}, '', '/');
     } else if (params.get('canceled') === 'true') {
       window.history.replaceState({}, '', '/');
