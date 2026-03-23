@@ -985,14 +985,34 @@
       currentUser = data.session?.user || null;
       sessionChecked = true;
       updateNavAuth();
+      // Si no hay sesion, vaciar carrito residual
+      if (!currentUser) {
+        cart = [];
+        saveCart();
+        updateCartBadge();
+      }
     });
 
     // Escuchar cambios de sesion
     sbClient.auth.onAuthStateChange((event, session) => {
+      const prevUser = currentUser;
       currentUser = session?.user || null;
       updateNavAuth();
-      // Solo mostrar toast en logins reales, no en restauracion de sesion al cargar
+
+      if (event === 'SIGNED_OUT') {
+        // Limpiar carrito al cerrar sesion
+        cart = [];
+        saveCart();
+        updateCartBadge();
+      }
+
       if (event === 'SIGNED_IN' && sessionChecked) {
+        // Si cambia de usuario, limpiar carrito
+        if (prevUser && prevUser.id !== currentUser?.id) {
+          cart = [];
+          saveCart();
+          updateCartBadge();
+        }
         Toast.show('Sesión iniciada correctamente', 'success');
       }
     });
