@@ -132,7 +132,7 @@ async function sendConfirmationEmail({ orderNumber, customerEmail, customerName,
 
             <!-- Success icon -->
             <div style="text-align:center; padding: 40px 32px 24px;">
-              <div style="width:72px; height:72px; background:linear-gradient(135deg,#00696b,#2ddbde); border-radius:50%; margin:0 auto 20px; display:flex; align-items:center; justify-content:center; font-size:36px; line-height:72px;">✓</div>
+              <div style="width:72px; height:72px; background:linear-gradient(135deg,#00696b,#2ddbde); border-radius:50%; margin:0 auto 20px; font-size:40px; line-height:72px; text-align:center;">✓</div>
               <h2 style="color:#003345; margin:0 0 8px; font-size:28px;">¡Pedido Confirmado!</h2>
               <p style="color:#64748b; margin:0; font-size:16px;">Hola ${customerName || 'Cliente'}, gracias por tu compra.</p>
             </div>
