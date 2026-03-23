@@ -102,6 +102,7 @@
     initCartUI();
     initFAQ();
     initSkeletonLoading();
+    initOrdersPage();
     checkUrlParams();
   }
 
@@ -248,6 +249,12 @@
     document.getElementById('navCartBtn').addEventListener('click', (e) => {
       e.preventDefault();
       showPage('checkout');
+    });
+
+    // Orders icon -> mis pedidos
+    document.getElementById('navOrdersBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      showPage('orders');
     });
 
     // Hero CTA -> scroll to products
@@ -876,6 +883,89 @@
           }
         });
       }
+    });
+  }
+
+  // ===================== MIS PEDIDOS =====================
+  function initOrdersPage() {
+    const searchBtn = document.getElementById('searchOrdersBtn');
+    const emailInput = document.getElementById('ordersEmail');
+    const resultContainer = document.getElementById('ordersResult');
+
+    if (!searchBtn) return;
+
+    searchBtn.addEventListener('click', async () => {
+      const email = emailInput.value.trim();
+      if (!email || !email.includes('@')) {
+        Toast.show('Ingresa un email válido', 'error');
+        return;
+      }
+
+      searchBtn.innerHTML = '<span class="material-icons" style="animation:spin 1s linear infinite">autorenew</span> Buscando...';
+      searchBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/get-orders?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+
+        if (!data.orders || data.orders.length === 0) {
+          resultContainer.innerHTML = `
+            <div style="text-align:center; padding: var(--space-12) 0;">
+              <span class="material-icons" style="font-size:64px; color:var(--outline-variant);">inbox</span>
+              <h3 style="margin: var(--space-4) 0 var(--space-2);">No se encontraron pedidos</h3>
+              <p style="color:var(--on-surface-variant);">No hay pedidos asociados a <strong>${email}</strong></p>
+            </div>`;
+        } else {
+          resultContainer.innerHTML = `
+            <p style="color:var(--on-surface-variant); margin-bottom:var(--space-6);">
+              ${data.orders.length} pedido${data.orders.length > 1 ? 's' : ''} encontrado${data.orders.length > 1 ? 's' : ''} para <strong>${email}</strong>
+            </p>
+            ${data.orders.map(order => `
+              <div class="order-history-card">
+                <div class="order-history-header">
+                  <div>
+                    <span class="label-sm" style="color:var(--on-surface-variant);">Número de orden</span>
+                    <p class="order-history-number">${order.order_number}</p>
+                  </div>
+                  <div style="text-align:right;">
+                    <span class="label-sm" style="color:var(--on-surface-variant);">Fecha</span>
+                    <p style="font-weight:600; margin:0;">${new Date(order.created_at).toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' })}</p>
+                  </div>
+                  <div style="text-align:right;">
+                    <span class="label-sm" style="color:var(--on-surface-variant);">Total</span>
+                    <p style="font-weight:800; font-size:1.25rem; color:var(--primary); margin:0;">€${order.total_amount.toFixed(2)}</p>
+                  </div>
+                  <span class="order-status-badge">
+                    <span class="status-dot"></span>
+                    Completado
+                  </span>
+                </div>
+                <div class="order-history-items">
+                  ${(order.order_items || []).map(item => `
+                    <div class="order-history-item">
+                      <span class="material-icons" style="color:var(--secondary); font-size:1.2rem;">inventory_2</span>
+                      <div>
+                        <p style="margin:0; font-weight:600;">${item.product_name}</p>
+                        <p style="margin:0; font-size:0.8125rem; color:var(--on-surface-variant);">${item.license_type} · Cant: ${item.quantity}</p>
+                      </div>
+                      <span style="margin-left:auto; font-weight:700; color:var(--primary);">€${item.unit_price.toFixed(2)}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `).join('')}`;
+        }
+      } catch (err) {
+        Toast.show('Error al buscar pedidos. Intenta de nuevo.', 'error');
+      } finally {
+        searchBtn.innerHTML = '<span class="material-icons">search</span> Buscar pedidos';
+        searchBtn.disabled = false;
+      }
+    });
+
+    // Buscar con Enter
+    emailInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') searchBtn.click();
     });
   }
 

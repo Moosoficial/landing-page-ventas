@@ -1792,3 +1792,93 @@ ul, ol {
 .cart-panel {
   height: fit-content;
 }
+
+/* ===================== MIS PEDIDOS ===================== */
+.nav-orders-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  color: var(--on-surface-variant);
+  transition: background 0.2s, color 0.2s;
+  text-decoration: none;
+}
+
+.nav-orders-btn:hover {
+  background: var(--surface-container);
+  color: var(--primary);
+}
+
+.order-history-card {
+  background: var(--surface-container-lowest);
+  border: 1px solid var(--surface-container);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  margin-bottom: var(--space-6);
+  transition: box-shadow 0.2s;
+}
+
+.order-history-card:hover {
+  box-shadow: 0 8px 32px rgba(0, 51, 69, 0.1);
+}
+
+.order-history-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-5) var(--space-6);
+  background: var(--surface-container);
+  flex-wrap: wrap;
+}
+
+.order-history-number {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary);
+  margin: 2px 0 0;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.order-status-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: rgba(0, 105, 107, 0.1);
+  color: var(--secondary);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.order-history-items {
+  padding: var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.order-history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--surface-container);
+}
+
+.order-history-item:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 640px) {
+  .order-history-header {
+    gap: var(--space-4);
+  }
+  .order-status-badge {
+    margin-left: 0;
+  }
+}
