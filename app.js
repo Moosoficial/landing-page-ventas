@@ -102,15 +102,15 @@
     initPageNavigation();
     initCategoryFilter();
     initCartInteractions();
-    initProductCards();
     initParticles();
     initScrollAnimations();
     initCartUI();
     initFAQ();
-    initSkeletonLoading();
     initOrdersPage();
     initAuth();
     checkUrlParams();
+    // Load products from Supabase then render cards
+    loadProducts();
   }
 
   // ===================== CART FUNCTIONS =====================
@@ -662,123 +662,72 @@
   }
 
   // ===================== PRODUCT DATA =====================
-  const productData = {
-    photoshop: {
-      id: 'photoshop',
-      title: 'Adobe Photoshop',
-      name: 'Adobe Photoshop',
-      category: 'Creative Suite — Suscripción',
-      price: 22.99,
-      period: '/mes',
-      license: 'Suscripción mensual',
-      image: 'assets/images/photoshop.png',
-      desc: 'El estándar mundial en edición de imágenes y diseño gráfico. Crea todo lo que puedas imaginar con herramientas avanzadas y soporte de IA.',
-      theme: 0x0033aa,
-      specs: [
-        { icon: 'cloud_done', text: '100GB Almacenamiento Cloud' },
-        { icon: 'sync', text: 'Sincronización Multi-dispositivo' },
-        { icon: 'auto_awesome', text: 'Adobe Firefly AI integrado' }
-      ],
-      features: [
-        { icon: 'brush', iconClass: 'primary', title: 'Edición Profesional', desc: 'Retoque, composición y creación de arte digital con precisión píxel por píxel.' },
-        { icon: 'auto_fix_high', iconClass: 'secondary', title: 'Relleno Generativo', desc: 'Añade, elimina o expande contenido en imágenes usando prompts de texto.' },
-        { icon: 'layers', iconClass: 'tertiary', title: 'Capas y Máscaras', desc: 'Flujo de trabajo no destructivo con infinitas posibilidades de composición.' },
-        { icon: 'color_lens', iconClass: 'primary', title: 'Gestión de Color', desc: 'Soporte completo para espacios de color CMYK, RGB y perfiles personalizados.' }
-      ]
-    },
-    office: {
-      id: 'office',
-      title: 'Microsoft Office 365',
-      name: 'Office 365',
-      category: 'Productividad — Suscripción',
-      price: 9.99,
-      period: '/mes',
-      license: 'Suscripción mensual',
-      image: 'assets/images/office365.png',
-      desc: 'Productividad sin límites con Word, Excel, PowerPoint y Teams. Colaboración en la nube integrada para equipos de alto rendimiento.',
-      theme: 0xeb3c00,
-      specs: [
-        { icon: 'cloud_done', text: '1TB OneDrive Storage' },
-        { icon: 'people', text: 'Hasta 6 usuarios' },
-        { icon: 'security', text: 'Seguridad Avanzada' }
-      ],
-      features: [
-        { icon: 'description', iconClass: 'primary', title: 'Creación de Documentos', desc: 'Redacta documentos profesionales con asistencia inteligente de escritura.' },
-        { icon: 'table_chart', iconClass: 'secondary', title: 'Análisis de Datos', desc: 'Descubre patrones y tendencias complejas con las fórmulas avanzadas de Excel.' },
-        { icon: 'co_present', iconClass: 'tertiary', title: 'Presentaciones Dinámicas', desc: 'Diseña diapositivas impactantes con sugerencias de diseño automatizadas.' },
-        { icon: 'forum', iconClass: 'primary', title: 'Comunicación Fluida', desc: 'Reuniones y chat integrados en una sola plataforma con Microsoft Teams.' }
-      ]
-    },
-    autocad: {
-      id: 'autocad',
-      title: 'AutoCAD 2024',
-      name: 'AutoCAD 2024',
-      category: 'Engineering — Licencia Anual',
-      price: 235,
-      period: '/año',
-      license: 'Licencia anual',
-      image: 'assets/images/autocad.png',
-      desc: 'Diseño 2D y 3D de alta precisión para ingeniería, arquitectura y construcción. Automatiza tareas y acelera tu flujo de trabajo.',
-      theme: 0xc40000,
-      specs: [
-        { icon: 'architecture', text: 'Toolset Específico' },
-        { icon: '3d_rotation', text: 'Modelado 3D Avanzado' },
-        { icon: 'devices', text: 'Web & Mobile Apps' }
-      ],
-      features: [
-        { icon: 'draw', iconClass: 'primary', title: 'Dibujo de Precisión', desc: 'Crea geometrías 2D y modelos 3D con la máxima exactitud del mercado.' },
-        { icon: 'autorenew', iconClass: 'secondary', title: 'Automatización', desc: 'Reemplaza bloques, cuenta objetos y compara dibujos automáticamente.' },
-        { icon: 'cloud', iconClass: 'tertiary', title: 'Colaboración Cloud', desc: 'Revisa y edita archivos DWG en tiempo real con tu equipo desde cualquier lugar.' },
-        { icon: 'extension', iconClass: 'primary', title: 'Personalización API', desc: 'Agrega add-ons y rutinas LISP específicas para adaptar el software a tu industria.' }
-      ]
-    },
-    ableton: {
-      id: 'ableton',
-      title: 'Ableton Live 12',
-      name: 'Ableton Live 12',
-      category: 'Audio Production — Licencia Vitalicia',
-      price: 449,
-      period: 'único',
-      license: 'Licencia vitalicia',
-      image: 'assets/images/ableton.png',
-      desc: 'Software fluido para creación y performance musical en vivo y en estudio. Transforma ideas en pistas finales de forma intuitiva.',
-      theme: 0x96ceeb,
-      specs: [
-        { icon: 'piano', text: 'Instrumentos Virtuales' },
-        { icon: 'mic', text: 'Grabación Multipista' },
-        { icon: 'graphic_eq', text: 'Efectos Nativos' }
-      ],
-      features: [
-        { icon: 'queue_music', iconClass: 'primary', title: 'Session View', desc: 'Improvisa y explora ideas musicales sin la restricción de una línea de tiempo.' },
-        { icon: 'tune', iconClass: 'secondary', title: 'Warping Audio', desc: 'Ajusta el tempo y timing de cualquier audio en tiempo real sin perder calidad.' },
-        { icon: 'sensors', iconClass: 'tertiary', title: 'Soporte MIDI MPE', desc: 'Crea bends, slides y presiones expresivas para acordes individuales.' },
-        { icon: 'album', iconClass: 'primary', title: 'Librería de Sonidos', desc: 'Más de 70GB de samples premium, kits y bucles listos para ser usados.' }
-      ]
-    },
-    illustrator: {
-      id: 'illustrator',
-      title: 'Adobe Illustrator',
-      name: 'Adobe Illustrator',
-      category: 'Creative Suite — Suscripción',
-      price: 22.99,
-      period: '/mes',
-      license: 'Suscripción mensual',
-      image: 'assets/images/illustrator.png',
-      desc: 'Gráficos vectoriales que mantienen su nitidez a cualquier escala. Perfecto para branding, logotipos, tipografías e ilustraciones complejas.',
-      theme: 0xffa500,
-      specs: [
-        { icon: 'cloud_done', text: '100GB Almacenamiento Cloud' },
-        { icon: 'text_format', text: 'Acceso a Adobe Fonts' },
-        { icon: 'auto_awesome', text: 'Generación Vectorial AI' }
-      ],
-      features: [
-        { icon: 'format_shapes', iconClass: 'primary', title: 'Trazos Precisos', desc: 'Crea logotipos e iconos escalables con un control bezier absoluto.' },
-        { icon: 'color_lens', iconClass: 'secondary', title: 'Recoloreado AI', desc: 'Prueba múltiples paletas de colores en tu arte instantáneamente con IA.' },
-        { icon: 'text_fields', iconClass: 'tertiary', title: 'Tipografía Avanzada', desc: 'Control al nivel de glifo para crear y modificar fuentes de texto.' },
-        { icon: 'share', iconClass: 'primary', title: 'Exportación Múltiple', desc: 'Genera assets para web, móvil e impresión con un solo clic.' }
-      ]
+  // productData populated dynamically from /api/get-products
+  let productData = {};
+
+  async function loadProducts() {
+    try {
+      const res = await fetch('/api/get-products');
+      const { products } = await res.json();
+      if (!products || products.length === 0) return;
+
+      // Build productData map keyed by product_key
+      productData = {};
+      products.forEach(p => {
+        productData[p.product_key] = {
+          id: p.product_key,
+          title: p.title,
+          name: p.name,
+          category: p.category,
+          price: parseFloat(p.price),
+          period: p.period,
+          license: p.license_type,
+          image: p.image_url,
+          desc: p.description,
+          specs: p.specifications || [],
+          features: p.features || [],
+          badge: p.badge,
+          categoryFilter: p.category_filter,
+        };
+      });
+
+      renderProductCards(products);
+    } catch (err) {
+      console.error('Error loading products:', err);
+      // Fallback: remove skeleton cards
+      document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
     }
-  };
+  }
+
+  function renderProductCards(products) {
+    const grid = document.getElementById('productsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = products.map(p => `
+      <article class="product-card" data-category="${p.category_filter}" data-product="${p.product_key}" id="card-${p.product_key}">
+        <div class="product-image">
+          <img src="${p.image_url}" alt="${p.title}" loading="lazy">
+          ${p.badge ? `<span class="product-badge ${p.badge === 'Más vendido' ? 'bestseller' : 'new'}">${p.badge}</span>` : ''}
+        </div>
+        <div class="product-info">
+          <p class="label-sm product-category">${p.category.split(' — ')[0]}</p>
+          <h3 class="product-name">${p.name}</h3>
+          <p class="product-desc">${p.description.substring(0, 90)}${p.description.length > 90 ? '…' : ''}</p>
+          <div class="product-footer">
+            <span class="product-price">€${parseFloat(p.price).toFixed(2)} <span class="period">${p.period}</span></span>
+            <button class="product-add-btn" aria-label="Agregar al carrito">
+              <span class="material-icons">add_shopping_cart</span>
+            </button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    // Re-init cards and category filter after render
+    initProductCards();
+    initCategoryFilter();
+  }
+
 
   // ===================== PRODUCT CARD CLICKS =====================
   function initProductCards() {

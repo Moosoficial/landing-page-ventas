@@ -603,6 +603,22 @@ ul, ol {
   cursor: pointer;
 }
 
+.skeleton-card {
+  min-height: 340px;
+  background: linear-gradient(90deg,
+    var(--surface-container-lowest) 25%,
+    var(--surface-container) 50%,
+    var(--surface-container-lowest) 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.4s infinite;
+  cursor: default;
+}
+
+@keyframes skeletonShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 .product-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-lg);

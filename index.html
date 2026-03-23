@@ -138,99 +138,14 @@
           </a>
         </div>
 
-        <!-- Product Grid -->
+        <!-- Product Grid — rendered dynamically from Supabase -->
         <div class="products-grid" id="productsGrid">
-          <!-- Card 1: Photoshop -->
-          <article class="product-card" data-category="creative" data-product="photoshop" id="card-photoshop">
-            <div class="product-image">
-              <img src="assets/images/photoshop.png" alt="Adobe Photoshop" loading="lazy">
-              <span class="product-badge bestseller">Más vendido</span>
-            </div>
-            <div class="product-info">
-              <p class="label-sm product-category">Creative Suite</p>
-              <h3 class="product-name">Adobe Photoshop</h3>
-              <p class="product-desc">El estándar mundial en edición de imágenes y diseño gráfico. Crea todo lo que puedas imaginar.</p>
-              <div class="product-footer">
-                <span class="product-price">€22.99 <span class="period">/mes</span></span>
-                <button class="product-add-btn" aria-label="Agregar al carrito">
-                  <span class="material-icons">add_shopping_cart</span>
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 2: Office 365 -->
-          <article class="product-card" data-category="office" data-product="office" id="card-office">
-            <div class="product-image">
-              <img src="assets/images/office365.png" alt="Office 365" loading="lazy">
-            </div>
-            <div class="product-info">
-              <p class="label-sm product-category">Productividad</p>
-              <h3 class="product-name">Office 365</h3>
-              <p class="product-desc">Productividad sin límites con Word, Excel y PowerPoint. Colaboración en la nube integrada.</p>
-              <div class="product-footer">
-                <span class="product-price">€9.99 <span class="period">/mes</span></span>
-                <button class="product-add-btn" aria-label="Agregar al carrito">
-                  <span class="material-icons">add_shopping_cart</span>
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 3: AutoCAD -->
-          <article class="product-card" data-category="engineering" data-product="autocad" id="card-autocad">
-            <div class="product-image">
-              <img src="assets/images/autocad.png" alt="AutoCAD 2024" loading="lazy">
-              <span class="product-badge new">Nuevo</span>
-            </div>
-            <div class="product-info">
-              <p class="label-sm product-category">Engineering</p>
-              <h3 class="product-name">AutoCAD 2024</h3>
-              <p class="product-desc">Diseño 2D y 3D de alta precisión para ingeniería y arquitectura profesional.</p>
-              <div class="product-footer">
-                <span class="product-price">€235 <span class="period">/año</span></span>
-                <button class="product-add-btn" aria-label="Agregar al carrito">
-                  <span class="material-icons">add_shopping_cart</span>
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 4: Ableton -->
-          <article class="product-card" data-category="audio" data-product="ableton" id="card-ableton">
-            <div class="product-image">
-              <img src="assets/images/ableton.png" alt="Ableton Live 12" loading="lazy">
-            </div>
-            <div class="product-info">
-              <p class="label-sm product-category">Audio Production</p>
-              <h3 class="product-name">Ableton Live 12</h3>
-              <p class="product-desc">Software fluido para creación y performance musical en vivo y en estudio.</p>
-              <div class="product-footer">
-                <span class="product-price">€449 <span class="period">único</span></span>
-                <button class="product-add-btn" aria-label="Agregar al carrito">
-                  <span class="material-icons">add_shopping_cart</span>
-                </button>
-              </div>
-            </div>
-          </article>
-
-          <!-- Card 5: Illustrator -->
-          <article class="product-card" data-category="creative" data-product="illustrator" id="card-illustrator">
-            <div class="product-image">
-              <img src="assets/images/illustrator.png" alt="Adobe Illustrator" loading="lazy">
-            </div>
-            <div class="product-info">
-              <p class="label-sm product-category">Creative Suite</p>
-              <h3 class="product-name">Adobe Illustrator</h3>
-              <p class="product-desc">Gráficos vectoriales que mantienen su nitidez a cualquier escala. Perfecto para branding.</p>
-              <div class="product-footer">
-                <span class="product-price">€22.99 <span class="period">/mes</span></span>
-                <button class="product-add-btn" aria-label="Agregar al carrito">
-                  <span class="material-icons">add_shopping_cart</span>
-                </button>
-              </div>
-            </div>
-          </article>
+          <!-- Skeleton loaders shown while products load -->
+          <div class="product-card skeleton-card"></div>
+          <div class="product-card skeleton-card"></div>
+          <div class="product-card skeleton-card"></div>
+          <div class="product-card skeleton-card"></div>
+          <div class="product-card skeleton-card"></div>
         </div>
       </div>
     </section>
