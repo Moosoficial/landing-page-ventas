@@ -278,6 +278,13 @@
       document.getElementById('topSellers').scrollIntoView({ behavior: 'smooth' });
     });
 
+    // "Ver todo el catálogo" -> activar tab Todos + scroll al grid
+    document.getElementById('viewAllCatalogBtn')?.addEventListener('click', () => {
+      const allTab = document.querySelector('.category-tab[data-cat="all"]');
+      if (allTab) allTab.click();
+      document.getElementById('productsGrid').scrollIntoView({ behavior: 'smooth' });
+    });
+
     // "Add to cart" on product detail page -> requiere login
     const addCartBtn = document.getElementById('addToCartBtn');
     if (addCartBtn) {
